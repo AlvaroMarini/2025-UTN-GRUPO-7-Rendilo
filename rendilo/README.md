@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+📘 Rendilo – Plataforma de Exámenes (Next.js)
+🚀 Descripción
 
-## Getting Started
+Rendilo es una webapp educativa para la gestión y rendición de exámenes.
+Cuenta con dos dashboards principales:
 
-First, run the development server:
+👨‍🏫 Profesores: pueden crear, editar y administrar exámenes.
 
-```bash
+🎓 Alumnos: pueden rendir exámenes y visualizar sus notas.
+
+Este proyecto está desarrollado en:
+
+Next.js 15
+ con App Router
+
+TypeScript
+
+Tailwind CSS v4
+ para estilos
+
+Zustand
+ para manejo de estado global y persistencia en localStorage
+
+📂 Estructura de carpetas
+rendilo/
+  app/                       # App Router de Next.js
+    layout.tsx               # Layout raíz (header, tabs, footer)
+    page.tsx                 # Página de inicio (redirige a /profes o muestra default)
+    (dashboard)/             # Route group para dashboards
+      alumnos/page.tsx       # Dashboard de alumnos
+      profes/page.tsx        # Dashboard de profesores
+      examen/
+        [id]/
+          editar/page.tsx    # Página de edición de examen
+          rendir/page.tsx    # Página para rendir examen
+  components/
+    NavTabs.tsx              # Navegación superior con pestañas
+    ui/
+      Pill.tsx               # Componente UI reutilizable
+      Card.tsx               # Componente UI reutilizable
+      index.ts               # Reexporta componentes de UI
+  store/
+    exams.ts                 # Store Zustand con lógica de exámenes
+  public/                    # Archivos estáticos
+  .next/                     # Carpeta generada por Next (ignorada en git)
+  node_modules/              # Dependencias (ignorada en git)
+  package.json               # Dependencias y scripts
+  tsconfig.json              # Configuración TypeScript
+  tailwind.config.js         # Configuración Tailwind
+  postcss.config.mjs         # Configuración PostCSS
+
+⚙️ Instalación y uso
+1. Clonar el repo
+git clone <url-del-repo>
+cd rendilo
+
+2. Instalar dependencias
+npm install
+
+
+Dependencias clave:
+
+next, react, react-dom
+
+tailwindcss, @tailwindcss/postcss, autoprefixer
+
+zustand
+
+3. Ejecutar en desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Abrir en: http://localhost:3000
