@@ -1,4 +1,6 @@
-import ProfesPage from "./(dashboard)/profes/page";
+// app/page.tsx
+import { redirect } from "next/navigation";
+
 export default function Home() {
-  return <ProfesPage />;
+  redirect("/profesores");
 }
