@@ -10,44 +10,16 @@ Cuenta con dos dashboards principales:
 
 Este proyecto está desarrollado en:
 
-Next.js 15
- con App Router
+-Next.js 15
+  con App Router
 
-TypeScript
+-TypeScript
 
-Tailwind CSS v4
- para estilos
+-Tailwind CSS v4
+  para estilos
 
-Zustand
- para manejo de estado global y persistencia en localStorage
-
-📂 Estructura de carpetas
-rendilo/
-  app/                       # App Router de Next.js
-    layout.tsx               # Layout raíz (header, tabs, footer)
-    page.tsx                 # Página de inicio (redirige a /profes o muestra default)
-    (dashboard)/             # Route group para dashboards
-      alumnos/page.tsx       # Dashboard de alumnos
-      profes/page.tsx        # Dashboard de profesores
-      examen/
-        [id]/
-          editar/page.tsx    # Página de edición de examen
-          rendir/page.tsx    # Página para rendir examen
-  components/
-    NavTabs.tsx              # Navegación superior con pestañas
-    ui/
-      Pill.tsx               # Componente UI reutilizable
-      Card.tsx               # Componente UI reutilizable
-      index.ts               # Reexporta componentes de UI
-  store/
-    exams.ts                 # Store Zustand con lógica de exámenes
-  public/                    # Archivos estáticos
-  .next/                     # Carpeta generada por Next (ignorada en git)
-  node_modules/              # Dependencias (ignorada en git)
-  package.json               # Dependencias y scripts
-  tsconfig.json              # Configuración TypeScript
-  tailwind.config.js         # Configuración Tailwind
-  postcss.config.mjs         # Configuración PostCSS
+-Zustand
+  para manejo de estado global y persistencia en localStorage
 
 ⚙️ Instalación y uso
 1. Clonar el repo
