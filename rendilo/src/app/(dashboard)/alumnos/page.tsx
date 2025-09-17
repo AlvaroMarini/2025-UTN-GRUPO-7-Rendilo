@@ -7,7 +7,7 @@ export default function AlumnosPage() {
   const { exams } = useExamStore();
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-semibold mb-4">Rendilo Alu</h1>
+      <h1 className="text-2xl font-semibold mb-4">Lista de examenes</h1>
       {exams.map(ex => (
         <Card key={ex.id}>
           <div className="flex items-center justify-between">
