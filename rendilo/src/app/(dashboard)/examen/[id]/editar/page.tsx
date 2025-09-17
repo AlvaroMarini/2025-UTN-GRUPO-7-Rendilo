@@ -22,7 +22,7 @@ export default function EditExam() {
   <h1 className="text-3xl font-bold text-white">Editar examen</h1>
   <button
     className="text-sm underline text-white hover:text-gray-300 transition"
-    onClick={() => router.push("/profes")}
+    onClick={() => router.push("/profesores")}
   >
     Volver
   </button>
@@ -63,13 +63,13 @@ export default function EditExam() {
     <input 
       type="number"
       className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
-      placeholder="Escribe el título aquí"
+      placeholder="Ingrese la duracion en minutos"
     />
   </label>
 
       {/* …resto igual al ejemplo anterior… */}
       <div className="flex gap-2">
-        <Link href={`/examen/${exam.id}/editar/agregarPregunta`} className="inline-flex rounded-full border px-3 py-1" >+ Pregunta</Link>
+        <Link href={`/examen/${exam.id}/editar/agregarPregunta`} className="inline-flex rounded-full border px-3 py-1 items-center justify-between" >+ Pregunta</Link>
         <button className="rounded-full border px-4 py-2" onClick={() => router.push("/profes")}>Guardar</button>
       </div>
       {exam.questions.map(ex => (
