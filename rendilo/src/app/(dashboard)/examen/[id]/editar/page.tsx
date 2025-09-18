@@ -8,82 +8,100 @@ export default function EditExam() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { exams, updateExam } = useExamStore();
-  const exam = exams.find(e => e.id === Number(id));
+  const exam = exams.find((e) => e.id === Number(id));
   if (!exam) return <p>No existe el examen.</p>;
-
-/*const addQuestion = ( ) => {
-    const q = { id: Date.now(), type: "single" as const, text: "Nueva pregunta", options: [], correct: 0 };
-    updateExam(exam.id, { questions: [...(exam.questions || []), q] });
-  };*/
 
   return (
     <>
       <div className="flex items-center justify-between">
-  <h1 className="text-3xl font-bold text-white">Editar examen</h1>
-  <button
-    className="text-sm underline text-white hover:text-gray-300 transition"
-    onClick={() => router.push("/profes")}
-  >
-    Volver
-  </button>
-</div>
+        <h1 className="text-3xl font-bold text-white">Editar examen</h1>
+        <button
+          className="text-sm underline text-white hover:text-gray-300 transition"
+          onClick={() => router.push("/profesores")}
+        >
+          Volver
+        </button>
+      </div>
 
-<div className="my-6 space-y-4">
-  {/* Campo de Título */}
-  <label className="block">
-    <span className="block mb-1 text-white text-sm font-medium">
-      Título del examen
-    </span>
-    <input
-      className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
-      value={exam.title}
-      onChange={(e) => updateExam(exam.id, { title: e.target.value })}
-      placeholder="Escribe el título aquí"
-    />
-  </label>
+      <div className="my-6 space-y-4">
+        {/* Campo de Título */}
+        <label className="block">
+          <span className="block mb-1 text-white text-sm font-medium">
+            Título del examen
+          </span>
+          <input
+            className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
+            value={exam.title}
+            onChange={(e) => updateExam(exam.id, { title: e.target.value })}
+            placeholder="Escribe el título aquí"
+          />
+        </label>
 
-  {/* Campo de Descripción */}
-  <label className="block">
-    <span className="block mb-1 text-white text-sm font-medium">
-      Descripción
-    </span>
-    <textarea
-      className="rounded-xl border border-gray-300  px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
-      rows={4}
-      placeholder="Agrega detalles o instrucciones del examen"
-    />
-  </label>
-</div>
+        {/* Campo de Descripción */}
+        <label className="block">
+          <span className="block mb-1 text-white text-sm font-medium">
+            Descripción
+          </span>
+          <textarea
+            className="rounded-xl border border-gray-300  px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
+            rows={4}
+            placeholder="Agrega detalles o instrucciones del examen"
+          />
+        </label>
+      </div>
 
-{/*Duracion*/}
- <label className="block">
-    <span className="block mb-1 text-white text-sm font-medium">
-      Duracion del examen (minutos)
-    </span>
-    <input 
-      type="number"
-      className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
-      placeholder="Escribe el título aquí"
-    />
-  </label>
+      {/*Duracion*/}
+      <label className="block">
+        <span className="block mb-1 text-white text-sm font-medium">
+          Duracion del examen (minutos)
+        </span>
+        <input
+          type="number"
+          className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
+          placeholder="Ingrese la duracion en minutos"
+        />
+      </label>
 
       {/* …resto igual al ejemplo anterior… */}
       <div className="flex gap-2">
-        <Link href={`/examen/${exam.id}/editar/agregarPregunta`} className="inline-flex rounded-full border px-3 py-1" >+ Pregunta</Link>
-        <button className="rounded-full border px-4 py-2" onClick={() => router.push("/profes")}>Guardar</button>
+        <Link
+          href={`/examen/${exam.id}/editar/agregarPregunta`}
+          className="inline-flex rounded-full border px-3 py-1 items-center justify-between"
+        >
+          + Pregunta
+        </Link>
+        <button
+          className="rounded-full border px-4 py-2"
+          onClick={() => router.push("/profes")}
+        >
+          Guardar
+        </button>
       </div>
-      {exam.questions.map(ex => (
-        <Card key={ex.id}>
-          <div className="flex items-center justify-between">
-            <Pill className="text-base text-white" >{ex.text}</Pill>
-          </div>
-        </Card>
+      {exam.questions.map((q, index) => (
+        <label>
+          Pregunta {index + 1}
+          <Card key={index}>
+            <div className="flex items-center justify-between">
+              <Pill className="text-base text-white">{q.examInstructions}</Pill>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                className="bi bi-trash3-fill"
+                viewBox="0 0 16 16"
+                onClick={() => {
+                  updateExam(exam.id, {
+                    questions: exam.questions.filter((_, i) => i !== index),
+                  });
+                }}
+              >
+                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+              </svg>
+            </div>
+          </Card>
+        </label>
       ))}
-     
     </>
   );
 }
-//Campo "Descripción/Instrucciones" (textarea opcional) ✅
-//Duracion en minutos MM:SS  ✅
-//Sección para agregar preguntas dinámicamente ✅ a medias
-//Implementar Botón "Agregar Pregunta" guardar

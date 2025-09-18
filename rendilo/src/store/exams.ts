@@ -1,11 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export type Option = {
+  text: String;
+  isCorrect: boolean;
+}
 export type Question =
-  | { id: number; type: "single"; text: string; options: string[]; correct: number }
-  // futuros tipos:
-  // | { id: number; type: "multi"; text: string; options: string[]; correct: number[] }
-  // | { id: number; type: "text"; text: string; correct: string }
+  | { id: number; type: "choice"; examInstructions: string; options: Option[]}
+  | { id: number; type: "tof"; examInstructions: string; tof: boolean}
+  | { id: number; type: "open"; examInstructions: string}
   ;
 
 export type Exam = {
@@ -20,7 +23,7 @@ type State = {
   exams: Exam[];
   addExam: (title: string) => void;
   updateExam: (id: number, patch: Partial<Exam>) => void;
-  submitAttempt: (id: number, answers: any[]) => number;
+  //submitAttempt: (id: number, answers: any[]) => number;
 };
 
 export const useExamStore = create<State>()(
@@ -39,7 +42,7 @@ export const useExamStore = create<State>()(
         })),
       updateExam: (id, patch) =>
         set((s) => ({ exams: s.exams.map((e) => (e.id === id ? { ...e, ...patch } : e)) })),
-      submitAttempt: (id, answers) => {
+      /*submitAttempt: (id, answers) => {
         const exam = get().exams.find((e) => e.id === id);
         let score = 0;
         if (exam) {
@@ -51,7 +54,7 @@ export const useExamStore = create<State>()(
           exams: s.exams.map((e) => (e.id === id ? { ...e, lastScore: score } : e)),
         }));
         return score;
-      },
+      },*/
     }),
     { name: "rendilo-store" }
   )
