@@ -1,12 +1,20 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type Question =
+// export type Question =
+//   | { id: number; type: "single"; text: string; options: string[]; correct: number }
+//   // futuros tipos:
+//   // | { id: number; type: "multi"; text: string; options: string[]; correct: number[] }
+//   // | { id: number; type: "text"; text: string; correct: string }
+//   ;
+
+  export type Question =
   | { id: number; type: "single"; text: string; options: string[]; correct: number }
-  // futuros tipos:
-  // | { id: number; type: "multi"; text: string; options: string[]; correct: number[] }
-  // | { id: number; type: "text"; text: string; correct: string }
-  ;
+  | { id: number; type: "vf"; text: string; correct: boolean }
+  | { id: number; type: "open"; text: string }
+  | { id: number; type: "code"; text: string }
+  | { id: number; type: "multiple"; text: string; options: string[]; correct: number[] };
+
 
 export type Exam = {
   id: number;
