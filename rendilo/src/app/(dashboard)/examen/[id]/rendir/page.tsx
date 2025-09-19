@@ -54,7 +54,7 @@ export default function TakeExam() {
 
   const onSubmit = () => {
     const score = submitAttempt(exam.id, answers);
-    alert(`Tu puntaje: ${score}/${exam.questions.length}`);
+    alert(`Tu puntaje: ${score}/10`);
     router.push("/alumnos");
   };
 
@@ -82,12 +82,12 @@ export default function TakeExam() {
         {exam.questions.map((q, i) => (
           <div key={q.id} className="border p-4 rounded">
             <p className="font-semibold mb-2">
-              Pregunta {i + 1}: {q.text}
+              Pregunta {i + 1}: {q.examInstructions}
             </p>
 
             {/* Multiple Choice (single option) */}
-            {q.type === "single" &&
-              q.options.map((opt: string, j: number) => (
+            {q.type === "choice" &&
+              q.options.map((opt, j) => (
                 <label key={j} className="block">
                   <input
                     type="radio"
@@ -96,20 +96,19 @@ export default function TakeExam() {
                     checked={answers[i] === j}
                     onChange={() => handleChange(i, j)}
                   />
-                  {opt}
+                  {opt.text}
                 </label>
               ))}
 
             {/* Verdadero/Falso */}
-            {q.type === "vf" && (
+            {q.type === "tof" && (
               <>
                 <label className="block">
                   <input
                     type="radio"
                     name={`q${i}`}
-                    value="V"
-                    checked={answers[i] === "V"}
-                    onChange={() => handleChange(i, "V")}
+                    checked={answers[i] === true}
+                    onChange={() => handleChange(i, true)}
                   />
                   Verdadero
                 </label>
@@ -117,9 +116,8 @@ export default function TakeExam() {
                   <input
                     type="radio"
                     name={`q${i}`}
-                    value="F"
-                    checked={answers[i] === "F"}
-                    onChange={() => handleChange(i, "F")}
+                    checked={answers[i] === false}
+                    onChange={() => handleChange(i, false)}
                   />
                   Falso
                 </label>
@@ -136,24 +134,6 @@ export default function TakeExam() {
               />
             )}
 
-            {/* Pregunta de Código */}
-            {q.type === "code" && (
-              <div>
-                <textarea
-                  className="w-full border p-2 rounded font-mono"
-                  rows={4}
-                  value={answers[i] || ""}
-                  onChange={(e) => handleChange(i, e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="mt-2 bg-blue-500 text-white px-4 py-1 rounded"
-                  onClick={() => alert(`Ejecutando:\n${answers[i] || ""}`)}
-                >
-                  Compilar
-                </button>
-              </div>
-            )}
           </div>
         ))}
       </div>
