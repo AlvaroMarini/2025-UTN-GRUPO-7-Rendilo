@@ -61,10 +61,10 @@ export default function TakeExam() {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">{exam.title}</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
+        <h1 className="text-xl sm:text-2xl font-semibold">{exam.title}</h1>
         <button
-          className="text-sm underline"
+          className="text-sm underline self-start sm:self-auto"
           onClick={() => router.push("/alumnos")}
         >
           Salir
@@ -72,7 +72,7 @@ export default function TakeExam() {
       </div>
 
       {/* Progreso */}
-      <p className="mb-4">
+      <p className="mb-4 text-sm sm:text-base">
         Respondidas {answers.filter((a) => a !== undefined && a !== "").length} /{" "}
         {exam.questions.length}
       </p>
@@ -80,15 +80,15 @@ export default function TakeExam() {
       {/* Lista de preguntas */}
       <div className="space-y-6">
         {exam.questions.map((q, i) => (
-          <div key={q.id} className="border p-4 rounded">
-            <p className="font-semibold mb-2">
+          <div key={q.id} className="border p-3 sm:p-4 rounded shadow-sm">
+            <p className="font-semibold mb-2 text-sm sm:text-base">
               Pregunta {i + 1}: {q.examInstructions}
             </p>
 
             {/* Multiple Choice (single option) */}
             {q.type === "choice" &&
               q.options.map((opt, j) => (
-                <label key={j} className="block">
+                <label key={j} className="flex items-center gap-2 mb-1">
                   <input
                     type="radio"
                     name={`q${i}`}
@@ -96,14 +96,14 @@ export default function TakeExam() {
                     checked={answers[i] === j}
                     onChange={() => handleChange(i, j)}
                   />
-                  {opt.text}
+                  <span className="text-sm sm:text-base">{opt.text}</span>
                 </label>
               ))}
 
             {/* Verdadero/Falso */}
             {q.type === "tof" && (
-              <>
-                <label className="block">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name={`q${i}`}
@@ -112,7 +112,7 @@ export default function TakeExam() {
                   />
                   Verdadero
                 </label>
-                <label className="block">
+                <label className="flex items-center gap-2">
                   <input
                     type="radio"
                     name={`q${i}`}
@@ -121,15 +121,15 @@ export default function TakeExam() {
                   />
                   Falso
                 </label>
-              </>
-            )}
+              </div>
+          )}
 
             {/* Pregunta Abierta */}
             {q.type === "open" && (
               <textarea
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded text-sm sm:text-base"
                 rows={3}
-                value={answers[i] || ""}
+                value={answers[i] || ""}  
                 onChange={(e) => handleChange(i, e.target.value)}
               />
             )}
@@ -140,7 +140,7 @@ export default function TakeExam() {
 
       {/* Botón de envío */}
       <button
-        className="mt-6 rounded-full border px-4 py-2 bg-green-600 text-white"
+        className="mt-6 w-full sm:w-auto rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
         onClick={onSubmit}
       >
         Enviar
