@@ -31,9 +31,11 @@
 
 "use client";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useExamStore } from "@/store/exams";
-
+//import { clearInterval } from "timers";
+//Tiempo Inicial de 2 Minutos para pruebas
+let tiempo = 1;
 export default function TakeExam() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -53,21 +55,78 @@ export default function TakeExam() {
   };
 
   const onSubmit = () => {
-    const score = submitAttempt(exam.id, answers);
-    alert(`Tu puntaje: ${score}/10`);
     router.push("/alumnos");
+    setMinutos(0);
+  };
+
+  const [ minutos, setMinutos ] = useState( tiempo * 60 );
+  const [ inicio, setInicio ]= useState<boolean>(true);
+  const [ pocoTiempo, setPoco ] = useState<boolean>(false);
+  const [ activo, setActivo ] = useState<boolean>(false);
+  const min = Math.floor(minutos / 60);
+  const seg = minutos % 60;
+
+  useEffect(()=>{
+    let intervalo: NodeJS.Timeout | null = null;
+    if(activo){
+      intervalo = setInterval(()=>{
+      setMinutos(prev =>{
+        return prev-1;
+      });
+    },1000);
+    }else{
+      if(intervalo)
+        clearInterval(intervalo);
+    }
+    return ()=>{
+      if(intervalo) clearInterval(intervalo);
+    }
+  },[ activo ]);
+
+  useEffect(()=>{
+    if( minutos === 0 ){
+      //
+      setMinutos(0);
+      setActivo(false);
+      //const score = submitAttempt(exam.id, answers);
+      //Eliminar comentarios para probar
+      const score = 5;
+      alert(`Tu puntaje: ${score}/10`);
+      console.log("UseEffect");
+      router.push("/alumnos");
+    }
+    if( min<1 ){
+      setPoco(true);
+    }
+
+  },[ minutos ]);
+
+  const start = ()=>{
+    setInicio(false);
+    setActivo(true);
+    document.documentElement.requestFullscreen();
   };
 
   return (
+    <>
+    { inicio ? (
+    <>
+    <div className="py-3">
+      <button onClick={start} className="px-6 py-1 bg-blue-700 rounded-lg hover:bg-blue-900 ">Rendir</button>
+    </div>
+    </>
+    ):(
+    <>
     <div className="p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
         <h1 className="text-xl sm:text-2xl font-semibold">{exam.title}</h1>
+        <span>Tiempo Restante <span className={`${pocoTiempo ? "text-red-500 font-bold" : "text-green-500 font-bold"}`}>{String(min).padStart(2,'0')} : {String(seg).padStart(2,'0')}</span></span>
         <button
           className="text-sm underline self-start sm:self-auto"
           onClick={() => router.push("/alumnos")}
         >
-          Salir
+          Finalizar
         </button>
       </div>
 
@@ -146,5 +205,10 @@ export default function TakeExam() {
         Enviar
       </button>
     </div>
+    </>
+      )
+    }
+    </>
   );
+  
 }
