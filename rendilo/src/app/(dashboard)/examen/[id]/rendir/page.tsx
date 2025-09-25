@@ -121,7 +121,7 @@ export default function TakeExam() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
         <h1 className="text-xl sm:text-2xl font-semibold">{exam.title}</h1>
-        <span>Tiempo Restante <span className={`${pocoTiempo ? "text-red-500 font-bold" : "text-green-500 font-bold"}`}>{String(min).padStart(2,'0')} : {String(seg).padStart(2,'0')}</span></span>
+        <span>Tiempo Restante <span className="font-bold"/*{`${pocoTiempo ? "text-red-500 font-bold" : "text-green-500 font-bold"}`}*/>{String(min).padStart(2,'0')} : {String(seg).padStart(2,'0')}</span></span>
         <button
           className="text-sm underline self-start sm:self-auto"
           onClick={() => router.push("/alumnos")}
