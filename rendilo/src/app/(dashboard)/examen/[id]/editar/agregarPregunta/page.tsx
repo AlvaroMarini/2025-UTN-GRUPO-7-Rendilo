@@ -121,7 +121,7 @@ export default function EditExam() {
             id="selector"
             value={opcion}
             onChange={(e) => setOpcion(e.target.value)}
-            className="rounded-xl border border-gray-300 px-3 py-2 w-full text-dark-900 focus:outline-none focus:ring-2 focus:ring-white-500"
+            className="rounded-xl border border-gray-300 px-3 py-2 w-full text-gray-100 bg-indigo-900/60 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           >
             <option value="open">Pregunta abierta</option>
             <option value="choice">Opcion multiple</option>
@@ -161,7 +161,7 @@ export default function EditExam() {
               </button>
             </div>
           </label>
-
+        <div className="mt-6">
           {opciones.map((op, index) => (
             <Card key={index}>
               <div className="flex items-center justify-between">
@@ -197,6 +197,7 @@ export default function EditExam() {
               </div>
             </Card>
           ))}
+        </div>
         </div>
       )}
       {opcion === "tof" && (
