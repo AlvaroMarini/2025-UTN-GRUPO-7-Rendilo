@@ -16,7 +16,11 @@ export default function EditExam() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-white">Editar examen</h1>
         <button
-          className="text-sm underline text-white hover:text-gray-300 transition"
+          className="relative text-sm font-medium text-white transition
+               after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 
+               after:bg-blue-500 after:transition-all after:duration-300
+               hover:text-blue-400 hover:after:w-full
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
           onClick={() => router.push("/profesores")}
         >
           Volver
@@ -70,12 +74,18 @@ export default function EditExam() {
       <div className="flex gap-2">
         <Link
           href={`/examen/${exam.id}/editar/agregarPregunta`}
-          className="inline-flex rounded-full border px-3 py-1 items-center justify-between"
+          className="rounded-full border border-zinc-700 px-5 py-2 text-zinc-100 bg-indigo-600
+             shadow-sm transition duration-200
+             hover:bg-indigo-500 hover:shadow-md 
+             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
         >
           + Pregunta
         </Link>
         <button
-          className="rounded-full border px-4 py-2"
+          className="rounded-full border border-zinc-700 px-5 py-2 text-zinc-100 bg-indigo-600
+             shadow-sm transition duration-200
+             hover:bg-indigo-500 hover:shadow-md 
+             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
           onClick={() => router.push("/profesores")}
         >
           Guardar

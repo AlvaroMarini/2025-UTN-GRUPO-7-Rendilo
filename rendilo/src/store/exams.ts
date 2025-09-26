@@ -27,6 +27,7 @@ type State = {
   addExam: (title: string) => void;
   updateExam: (id: number, patch: Partial<Exam>) => void;
   submitAttempt: (id: number, answers: any[]) => number;
+  deleteExam: (id: number) => void;
 };
 
 export const useExamStore = create<State>()(
@@ -85,6 +86,10 @@ export const useExamStore = create<State>()(
       
         return 0;
       },
+      deleteExam: (id: number) =>
+        set((s) => ({
+        exams: s.exams.filter((e) => e.id !== id),
+      })),
     }),
     { name: "rendilo-store" }
   )
