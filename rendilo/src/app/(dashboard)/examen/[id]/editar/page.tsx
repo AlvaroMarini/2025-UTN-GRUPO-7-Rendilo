@@ -46,6 +46,8 @@ export default function EditExam() {
             className="rounded-xl border border-gray-300  px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
             rows={4}
             placeholder="Agrega detalles o instrucciones del examen"
+            value={exam.description ?? ""}
+            onChange={(e) => updateExam(exam.id, { description: e.target.value })}
           />
         </label>
       </div>
@@ -59,6 +61,8 @@ export default function EditExam() {
           type="number"
           className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
           placeholder="Ingrese la duracion en minutos"
+          value={exam.duration ?? ""}
+          onChange={(e) => updateExam(exam.id, { duration: Math.max(0, Number(e.target.value) || 0) })}
         />
       </label>
 
@@ -72,7 +76,7 @@ export default function EditExam() {
         </Link>
         <button
           className="rounded-full border px-4 py-2"
-          onClick={() => router.push("/profes")}
+          onClick={() => router.push("/profesores")}
         >
           Guardar
         </button>
