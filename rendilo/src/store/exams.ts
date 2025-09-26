@@ -18,6 +18,8 @@ export type Exam = {
   published: boolean;
   questions: Question[];
   lastScore: number | null;
+  description?: string;
+  duration?: number;
 };
 
 type State = {
@@ -32,13 +34,13 @@ export const useExamStore = create<State>()(
     (set, get) => ({
       exams: [
         { id: 1, title: "Examen 1", published: true, questions: [], lastScore: null },
-        { id: 2, title: "Examen 2", published: false, questions: [], lastScore: 0 },
+        { id: 2, title: "Examen 2", description: "", duration: 0, published: false, questions: [], lastScore: 0 },
       ],
       addExam: (title) =>
         set((s) => ({
           exams: [
             ...s.exams,
-            { id: Date.now(), title, published: false, questions: [], lastScore: null },
+            { id: Date.now(), title, description: "", duration: 0, published: false, questions: [], lastScore: null },
           ],
         })),
       updateExam: (id, patch) =>
