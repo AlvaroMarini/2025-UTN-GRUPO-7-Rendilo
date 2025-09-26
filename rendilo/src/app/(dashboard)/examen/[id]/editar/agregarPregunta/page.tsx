@@ -82,7 +82,7 @@ export default function EditExam() {
     setVof(null);
 
     
-    router.push("/profesores");
+    router.push(`/examen/${id}/editar`);
   };
 
   return (
@@ -91,7 +91,7 @@ export default function EditExam() {
         <h1 className="text-3xl font-bold text-white">Agregar Pregunta</h1>
         <button
           className="text-sm underline text-white hover:text-gray-300 transition"
-          onClick={() => router.push("/profesores")}
+          onClick={() => router.push(`/examen/${id}/editar`)}
         >
           Volver
         </button>
