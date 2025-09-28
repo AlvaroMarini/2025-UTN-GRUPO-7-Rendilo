@@ -44,6 +44,7 @@ export default function TakeExam() {
 
   // Inicializa respuestas
   const [answers, setAnswers] = useState<any[]>([]);
+  const [studentId, setStudentId] = useState<string>("");
 
   if (!exam) return <p>No existe el examen.</p>;
   //if (exam.questions.length === 0) return <p>Este examen no tiene preguntas aún.</p>;
@@ -55,6 +56,7 @@ export default function TakeExam() {
   };
 
   const onSubmit = () => {
+    submitAttempt(exam.id, studentId || "alumno", answers);
     router.push("/alumnos");
     setMinutos(0);
   };
@@ -88,11 +90,7 @@ export default function TakeExam() {
       //
       setMinutos(0);
       setActivo(false);
-      //const score = submitAttempt(exam.id, answers);
-      //Eliminar comentarios para probar
-      const score = 5;
-      alert(`Tu puntaje: ${score}/10`);
-      console.log("UseEffect");
+      submitAttempt(exam.id, studentId || "alumno", answers);
       router.push("/alumnos");
     }
     if( min<1 ){
@@ -102,6 +100,13 @@ export default function TakeExam() {
   },[ minutos ]);
 
   const start = ()=>{
+    // Inicializar respuestas acorde a tipos
+    const init = (exam?.questions || []).map((q: any) => {
+      if (q.type === "choice") return -1;
+      if (q.type === "tof") return null;
+      return ""; // open
+    });
+    setAnswers(init);
     setInicio(false);
     setActivo(true);
     document.documentElement.requestFullscreen();
@@ -111,7 +116,13 @@ export default function TakeExam() {
     <>
     { inicio ? (
     <>
-    <div className="py-3">
+    <div className="space-y-3 py-3">
+      <input
+        className="border rounded px-3 py-2 w-full max-w-sm"
+        placeholder="Tu ID o nombre (obligatorio)"
+        value={studentId}
+        onChange={(e)=>setStudentId(e.target.value)}
+      />
       <button onClick={start} className="px-6 py-1 bg-blue-700 rounded-lg hover:bg-blue-900 ">Rendir</button>
     </div>
     </>
@@ -124,7 +135,7 @@ export default function TakeExam() {
         <span>Tiempo Restante <span className="font-bold"/*{`${pocoTiempo ? "text-red-500 font-bold" : "text-green-500 font-bold"}`}*/>{String(min).padStart(2,'0')} : {String(seg).padStart(2,'0')}</span></span>
         <button
           className="text-sm underline self-start sm:self-auto"
-          onClick={() => router.push("/alumnos")}
+          onClick={() => { submitAttempt(exam.id, studentId || "alumno", answers); router.push("/alumnos"); }}
         >
           Finalizar
         </button>
