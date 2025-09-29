@@ -112,19 +112,15 @@ export const useExamStore = create<State>()(
 
 
       reviewOpenAnswer: (examId, attemptId, questionIndex, isCorrect) => {
-        // Marcar una pregunta abierta como corregida por el profesor
-        set((s) => ({
+         set((s) => ({
           exams: s.exams.map((e) => {
             if (e.id !== examId) return e;
             const attempts = (e.attempts ?? []).map((a) => {
               if (a.id !== attemptId) return a;
-              const manualMarks = { ...(a.manualMarks ?? {}) };
-              manualMarks[questionIndex] = isCorrect;
+              const manualMarks = { ...(a.manualMarks ?? {}), [questionIndex]: !!isCorrect };
               // ¿quedan abiertas sin corregir?
-              const openIdxs = (e.questions || [])
-                .map((q, i) => q.type === "open" ? i : -1)
-                .filter(i => i >= 0);
-              const allReviewed = openIdxs.every((idx) => manualMarks[idx] !== undefined);
+              const openIdxs = (e.questions || []).map((q, i) => q.type === "open" ? i : -1).filter(i => i >= 0);
+              const allReviewed = openIdxs.length === 0 || openIdxs.every((idx) => manualMarks[idx] !== undefined);
               const manualCorrect = Object.values(manualMarks).filter(Boolean).length;
               const final = allReviewed ? (a.autoScore ?? 0) + manualCorrect : null;
               return {
@@ -134,17 +130,18 @@ export const useExamStore = create<State>()(
                 completed: allReviewed,
               };
             });
-            // Si el último intento quedó completo, reflejar nota del examen
-            const last = attempts[attempts.length - 1];
-            return {
-              ...e,
-              attempts,
-              lastScore: last && last.completed ? last.finalScore : e.lastScore ?? null,
-              needsReview: last ? !last.completed : e.needsReview,
-            };
-          })
-        }));
-      },
+          // Si el último intento quedó completo, reflejar nota del examen
+          const last = attempts[attempts.length - 1];
+          return {
+            ...e,
+            attempts,
+            lastScore: last && last.completed ? last.finalScore : e.lastScore ?? null,
+            needsReview: last ? !last.completed : e.needsReview,
+          };
+        })
+      }));
+},
+
 
 
       deleteExam: (id: number) =>
