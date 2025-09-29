@@ -7,10 +7,42 @@ import { Pill, Card } from "@/components/ui";
 export default function ProfesPage() {
   const { exams, addExam, deleteExam } = useExamStore();
   const [title, setTitle] = useState("");
-
+  // Lista de intentos pendientes: exams[].attempts[] con completed=false
+  const pending = exams.flatMap(ex =>
+    (ex.attempts ?? [])
+      .filter(a => !a.completed)
+      .map(a => ({ exam: ex, attempt: a }))
+  );
   return (
     <section className="space-y-4">
       <h1 className="text-2xl font-semibold mb-4">Rendilo Profes</h1>
+
+      {pending.length > 0 && (
+        <Card>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold">Pendientes de corrección</h2>
+          </div>
+          <ul className="space-y-2">
+            {pending.map(({ exam, attempt }) => (
+              <li key={attempt.id} className="flex items-center justify-between rounded border p-2">
+                <div className="text-sm">
+                  <div className="font-medium">{exam.title}</div>
+                  <div className="opacity-80">
+                    Alumno: <strong>{attempt.studentId}</strong> · Enviado: {new Date(attempt.submittedAt).toLocaleString()}
+                  </div>
+                </div>
+                <Link
+                  href={`/profesores/corregir/${exam.id}/${attempt.id}`}
+                  className="rounded-full border px-3 py-1 text-sm hover:bg-zinc-800"
+                >
+                  Corregir
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+      
       {exams.map(ex => (
         <Card key={ex.id}>
           <div className="flex items-center justify-between">
