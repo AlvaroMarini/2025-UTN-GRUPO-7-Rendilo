@@ -35,7 +35,7 @@ import { use, useEffect, useState } from "react";
 import { useExamStore } from "@/store/exams";
 //import { clearInterval } from "timers";
 //Tiempo Inicial de 2 Minutos para pruebas
-let tiempo = 1;
+
 export default function TakeExam() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -61,7 +61,7 @@ export default function TakeExam() {
     setMinutos(0);
   };
 
-  const [ minutos, setMinutos ] = useState( tiempo * 60 );
+  const [ minutos, setMinutos ] = useState<number>(() => Math.max(0, (exam?.duration ?? 0) * 60));
   const [ inicio, setInicio ]= useState<boolean>(true);
   const [ pocoTiempo, setPoco ] = useState<boolean>(false);
   const [ activo, setActivo ] = useState<boolean>(false);
@@ -107,6 +107,7 @@ export default function TakeExam() {
       return ""; // open
     });
     setAnswers(init);
+    setMinutos(Math.max(0, (exam?.duration ?? 0) * 60));
     setInicio(false);
     setActivo(true);
     document.documentElement.requestFullscreen();
