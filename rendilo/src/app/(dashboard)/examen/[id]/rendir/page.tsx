@@ -1,34 +1,3 @@
-// "use client";
-// import { useParams, useRouter } from "next/navigation";
-// import { useState } from "react";
-// import { useExamStore } from "@/store/exams";
-
-// export default function TakeExam() {
-//   const { id } = useParams<{ id: string }>();
-//   const router = useRouter();
-//   const { exams, submitAttempt } = useExamStore();
-//   const exam = exams.find(e => e.id === Number(id));
-//   const [answers, setAnswers] = useState<number[]>(() => (exam?.questions || []).map(()=>-1));
-//   if(!exam) return <p>No existe el examen.</p>;
-
-//   const onSubmit = () => {
-//     const score = submitAttempt(exam.id, answers);
-//     alert(`Tu puntaje: ${score}/${(exam.questions||[]).length || 10}`);
-//     router.push("/alumnos");
-//   };
-
-//   return (
-//     <>
-//       <div className="flex items-center justify-between">
-//         <h1 className="text-2xl font-semibold">{exam.title}</h1>
-//         <button className="text-sm underline" onClick={()=>router.push("/alumnos")}>Salir</button>
-//       </div>
-//       {/* …resto igual al ejemplo anterior… */}
-//       <button className="rounded-full border px-4 py-2" onClick={onSubmit}>Enviar</button>
-//     </>
-//   );
-// }
-
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -45,6 +14,7 @@ export default function TakeExam() {
   // Inicializa respuestas
   const [answers, setAnswers] = useState<any[]>([]);
   const [studentId, setStudentId] = useState<string>("");
+  const [submitted, setSubmitted] = useState(false);
 
   if (!exam) return <p>No existe el examen.</p>;
   //if (exam.questions.length === 0) return <p>Este examen no tiene preguntas aún.</p>;
@@ -54,11 +24,18 @@ export default function TakeExam() {
     updated[index] = value;
     setAnswers(updated);
   };
+  
+  const finishAndSubmit = () => {
+  if (submitted) return;           // evita doble envío
+  setSubmitted(true);              // candado
+  setActivo(false);                // frena timer si estaba corriendo
+  submitAttempt(exam.id, studentId || "alumno", answers);
+  router.push("/alumnos");
+  setMinutos(0);
+  };
 
   const onSubmit = () => {
-    submitAttempt(exam.id, studentId || "alumno", answers);
-    router.push("/alumnos");
-    setMinutos(0);
+    finishAndSubmit();
   };
 
   const [ minutos, setMinutos ] = useState<number>(() => Math.max(0, (exam?.duration ?? 0) * 60));
@@ -86,18 +63,13 @@ export default function TakeExam() {
   },[ activo ]);
 
   useEffect(()=>{
-    if( minutos === 0 ){
-      //
-      setMinutos(0);
-      setActivo(false);
-      submitAttempt(exam.id, studentId || "alumno", answers);
-      router.push("/alumnos");
-    }
-    if( min<1 ){
-      setPoco(true);
-    }
+    if (submitted) return;           
+      if (minutos === 0) {
+        finishAndSubmit();              
+      } 
+      if (min < 1) setPoco(true);
+  }, [minutos, submitted]);
 
-  },[ minutos ]);
 
   const start = ()=>{
     // Inicializar respuestas acorde a tipos
@@ -136,7 +108,7 @@ export default function TakeExam() {
         <span>Tiempo Restante <span className="font-bold"/*{`${pocoTiempo ? "text-red-500 font-bold" : "text-green-500 font-bold"}`}*/>{String(min).padStart(2,'0')} : {String(seg).padStart(2,'0')}</span></span>
         <button
           className="text-sm underline self-start sm:self-auto"
-          onClick={() => { submitAttempt(exam.id, studentId || "alumno", answers); router.push("/alumnos"); }}
+          onClick={finishAndSubmit}
         >
           Finalizar
         </button>
