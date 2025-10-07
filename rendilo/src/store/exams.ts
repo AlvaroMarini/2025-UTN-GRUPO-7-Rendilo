@@ -1,154 +1,81 @@
+// src/store/exams.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-
-export type Option = {
-  text: String;
-  isCorrect: boolean;
-}
-
-export type Question =
-  | { id: number; type: "choice"; examInstructions: string; options: Option[]}
-  | { id: number; type: "tof"; examInstructions: string; tof: boolean}
-  | { id: number; type: "open"; examInstructions: string}
-  ;
-
-export type Exam = {
-  id: number;
-  title: string;
-  published: boolean;
-  questions: Question[];
-  lastScore: number | null;
-  description?: string;
-  duration?: number;
-  attempts?: Attempt[];
-  needsReview?: boolean;
-};
+import {
+  apiListExams,
+  apiCreateExam,
+  apiUpdateExam,
+  apiDeleteExam,
+  apiSubmitAttempt,
+  apiReviewAttempt,
+  apiGetExam,
+  type Exam,
+  type Attempt,
+} from "@/lib/api";
 
 type State = {
   exams: Exam[];
-  addExam: (title: string) => void;
-  updateExam: (id: number, patch: Partial<Exam>) => void;
-  submitAttempt: (id: number, studentId: string, answers: any[]) => void;
-  reviewOpenAnswer: (examId: number, attemptId: number, questionIndex: number, isCorrect: boolean) => void;
-  deleteExam: (id: number) => void;
-  
-};
+  // Carga inicial/forzada desde el backend
+  hydrateFromApi: () => Promise<void>;
 
-export type Attempt = {
-  id: number;
-  studentId: string;
-  answers: any[];
-  autoScore: number | null;
-  manualMarks: Record<number, boolean>; // key: questionIndex (solo abiertas), value: isCorrect
-  finalScore: number | null;
-  completed: boolean; // auto + todas abiertas revisadas
-  submittedAt: number;
-};
+  // Exámenes
+  addExam: (title: string, published?: boolean) => Promise<void>;
+  updateExam: (id: number, patch: Partial<Pick<Exam,"title"|"published"|"description"|"duration">>) => Promise<void>;
+  deleteExam: (id: number) => Promise<void>;
 
+  // Intentos / corrección
+  submitAttempt: (examId: number, studentId: string, answers: any[]) => Promise<Attempt>;
+  reviewOpenAnswer: (examId: number, attemptId: number, questionIndex: number, isCorrect: boolean) => Promise<Attempt>;
+};
 
 export const useExamStore = create<State>()(
   persist(
     (set, get) => ({
-      exams: [
-        { id: 1, title: "Examen 1", published: true, questions: [], lastScore: null, attempts: [], needsReview: false },
-        { id: 2, title: "Examen 2", published: false, questions: [], lastScore: 0, attempts: [], needsReview: false },
-      ],
+      exams: [],
 
-
-      addExam: (title) =>
-        set((s) => ({
-          exams: [
-            ...s.exams,
-            { id: Date.now(), title, published: false, questions: [], lastScore: null, attempts: [], needsReview: false },
-          ],
-        })),
-
-
-      updateExam: (id, patch) =>
-        set((s) => ({ exams: s.exams.map((e) => (e.id === id ? { ...e, ...patch } : e)) })),
-
-
-      submitAttempt: (id, studentId, answers) => {
-        const exam = get().exams.find((e) => e.id === id);
-        if (!exam) return;
-        // Auto-eval: solo choice y tof
-        let autoCorrect = 0;
-        const qs = exam.questions || [];
-        qs.forEach((q, i) => {
-          if (q.type === "choice") {
-            const ai = answers[i];
-            if (ai !== undefined && q.options?.[ai]?.isCorrect) autoCorrect++;
-          }
-          if (q.type === "tof") {
-            if (answers[i] === q.tof) autoCorrect++;
-          }
-        });
-        // Crear intento
-        const attemptId = Date.now();
-        const openCount = qs.filter(q => q.type === "open").length;
-        const completed = openCount === 0; // si no hay abiertas, ya está completo
-        const finalScore = completed ? autoCorrect : null;
-        set((s) => ({
-          exams: s.exams.map((e) => e.id === id
-            ? {
-                ...e,
-                attempts: [...(e.attempts ?? []), {
-                  id: attemptId,
-                  studentId,
-                  answers,
-                  autoScore: autoCorrect,
-                  manualMarks: {},
-                  finalScore,
-                  completed,
-                  submittedAt: Date.now(),
-                }],
-                lastScore: completed ? autoCorrect : null, // publicar nota solo si está completo
-                needsReview: !completed,
-              }
-            : e)
-        }));
+      hydrateFromApi: async () => {
+        const server = await apiListExams();
+        set({ exams: server });
       },
 
+      addExam: async (title, published) => {
+        const created = await apiCreateExam(title, published);
+        set({ exams: [...get().exams, created] });
+      },
 
-      reviewOpenAnswer: (examId, attemptId, questionIndex, isCorrect) => {
-         set((s) => ({
-          exams: s.exams.map((e) => {
-            if (e.id !== examId) return e;
-            const attempts = (e.attempts ?? []).map((a) => {
-              if (a.id !== attemptId) return a;
-              const manualMarks = { ...(a.manualMarks ?? {}), [questionIndex]: !!isCorrect };
-              // ¿quedan abiertas sin corregir?
-              const openIdxs = (e.questions || []).map((q, i) => q.type === "open" ? i : -1).filter(i => i >= 0);
-              const allReviewed = openIdxs.length === 0 || openIdxs.every((idx) => manualMarks[idx] !== undefined);
-              const manualCorrect = Object.values(manualMarks).filter(Boolean).length;
-              const final = allReviewed ? (a.autoScore ?? 0) + manualCorrect : null;
-              return {
-                ...a,
-                manualMarks,
-                finalScore: final,
-                completed: allReviewed,
-              };
-            });
-          // Si el último intento quedó completo, reflejar nota del examen
-          const last = attempts[attempts.length - 1];
-          return {
-            ...e,
-            attempts,
-            lastScore: last && last.completed ? last.finalScore : e.lastScore ?? null,
-            needsReview: last ? !last.completed : e.needsReview,
-          };
-        })
-      }));
-},
+      updateExam: async (id, patch) => {
+        const updated = await apiUpdateExam(id, patch);
+        set({ exams: get().exams.map(e => (e.id === id ? updated : e)) });
+      },
 
+      deleteExam: async (id) => {
+        await apiDeleteExam(id);
+        set({ exams: get().exams.filter(e => e.id !== id) });
+      },
 
+      submitAttempt: async (examId, studentId, answers) => {
+        const at = await apiSubmitAttempt(examId, studentId, answers);
+        // refrescamos el examen (mantiene UI consistente)
+        const ex = await apiGetExam(examId);
+        set({ exams: get().exams.map(e => (e.id === examId ? ex : e)) });
+        return at;
+      },
 
-      deleteExam: (id: number) =>
-        set((s) => ({
-        exams: s.exams.filter((e) => e.id !== id),
-      })),
+      reviewOpenAnswer: async (examId, attemptId, questionIndex, isCorrect) => {
+        // armamos parcial de manualMarks mergeable
+        const partial = { [questionIndex]: isCorrect };
+        const at = await apiReviewAttempt(examId, attemptId, partial);
+        // refresco del examen
+        const ex = await apiGetExam(examId);
+        set({ exams: get().exams.map(e => (e.id === examId ? ex : e)) });
+        return at;
+      },
     }),
-    { name: "rendilo-store" }
+    {
+      name: "rendilo-exams", // si querés podés cambiar/limitar persistencia
+      partialize: (s) => ({ exams: s.exams }), // guardamos cache, pero viene de la API
+    }
   )
 );
+
+export type { Exam, Attempt };

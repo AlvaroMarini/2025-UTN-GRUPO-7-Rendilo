@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl  = env("SHADOW_DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role
+  attempts  Attempt[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  student
+  teacher
+}
+
+model Exam {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?    // opcional si la usás
+  published   Boolean    @default(false)
+  duration    Int?       // minutos
+  questions   Question[]
+  attempts    Attempt[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Question {
+  id               Int      @id @default(autoincrement())
+  examId           Int
+  type             QuestionType
+  examInstructions String
+  options          Json?    // para choice
+  tof              Boolean? // para true/false
+  exam   Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+  @@index([examId])
+}
+
+enum QuestionType {
+  choice
+  tof
+  open
+}
+
+model Attempt {
+  id          Int      @id @default(autoincrement())
+  examId      Int
+  studentId   String
+  answers     Json
+  autoScore   Int?
+  manualMarks Json     @default("{}")
+  finalScore  Int?
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  exam   Exam  @relation(fields: [examId], references: [id], onDelete: Cascade)
+  user   User  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([examId])
+  @@index([studentId])
+}

@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: rendilo-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: rendilo
+      MYSQL_USER: rendilo_user
+      MYSQL_PASSWORD: rendilo_pass
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -prendilo_pass -u rendilo_user | grep 'mysqld is alive' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  dbdata:

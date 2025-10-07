@@ -1,13 +1,19 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import NavTabs from "@/components/navTabs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth/config";
+import Link from "next/link";
+import SignOutButton from "@/components/SignOutButton";
 
 export const metadata: Metadata = {
   title: "Rendilo",
   description: "Plataforma de exámenes",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+  const role = (session as any)?.role;
+
   return (
     <html lang="es">
       <body className="min-h-screen bg-zinc-50 text-zinc-900 antialiased">
@@ -20,7 +26,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="text-xs text-zinc-500">Plataforma de exámenes</div>
               </div>
             </div>
-            <NavTabs />
+
+            <nav className="flex items-center gap-4">
+              {!session ? (
+                <Link href="/login" className="text-sm underline">Ingresar</Link>
+              ) : (
+                <>
+                  <Link
+                    href={role === "teacher" ? "/profesores" : "/alumnos"}
+                    className="text-sm underline"
+                  >
+                    Dashboard
+                  </Link>
+                  <SignOutButton />
+                </>
+              )}
+            </nav>
           </div>
         </header>
 
