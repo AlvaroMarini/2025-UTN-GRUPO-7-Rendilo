@@ -2,6 +2,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { useExamStore } from "@/store/exams";
+import RequireRole from "@/components/requireRole";
 //import { clearInterval } from "timers";
 //Tiempo Inicial de 2 Minutos para pruebas
 
@@ -89,6 +90,7 @@ export default function TakeExam() {
     <>
     { inicio ? (
     <>
+    <RequireRole role="alumno"></RequireRole>
     <div className="space-y-3 py-3">
       <input
         className="border rounded px-3 py-2 w-full max-w-sm"

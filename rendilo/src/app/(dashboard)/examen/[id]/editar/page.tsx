@@ -3,6 +3,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useExamStore } from "@/store/exams";
 import { Card, Pill } from "@/components/ui";
 import Link from "next/link";
+import RequireRole from "@/components/requireRole";
 
 export default function EditExam() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ export default function EditExam() {
 
   return (
     <>
+    <RequireRole role="profesor"></RequireRole>
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-white">Editar examen</h1>
         <button

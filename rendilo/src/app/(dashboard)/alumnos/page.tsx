@@ -2,10 +2,13 @@
 import Link from "next/link";
 import { useExamStore } from "@/store/exams";
 import { Pill, Card } from "@/components/ui";
+import RequireRole from "@/components/requireRole";
 
 export default function AlumnosPage() {
   const { exams } = useExamStore();
   return (
+    <>
+    <RequireRole role="alumno"></RequireRole>
     <section className="space-y-4">
       <h1 className="text-2xl font-semibold mb-4">Lista de examenes</h1>
       {exams.map(ex => (
@@ -30,5 +33,6 @@ export default function AlumnosPage() {
         </Card>
       ))}
     </section>
+    </>
   );
 }
