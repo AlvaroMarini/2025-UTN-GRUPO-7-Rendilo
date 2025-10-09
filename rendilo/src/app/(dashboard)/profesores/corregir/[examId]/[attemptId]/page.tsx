@@ -33,7 +33,7 @@ export default function CorregirIntentoPage() {
     // aplicar todos los cambios locales al store
     for (const idx of openIdxs) {
       const value = draftMarks[idx];
-      if (value !== undefined) {
+      if (value !== undefined && exam && attempt) {
         reviewOpenAnswer(exam.id, attempt.id, idx, value);
       }
     }
@@ -42,7 +42,7 @@ export default function CorregirIntentoPage() {
 
   return (
     <>
-    <RequireRole role="profesor"></RequireRole>
+    <RequireRole role="profesor">
     <div className="max-w-4xl mx-auto p-4 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -115,6 +115,7 @@ export default function CorregirIntentoPage() {
         ))}
       </div>
     </div>
+    </RequireRole>
     </>
   );
 }

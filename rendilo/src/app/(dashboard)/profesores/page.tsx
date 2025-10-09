@@ -16,7 +16,7 @@ export default function ProfesPage() {
   );
   return (
     <>
-      <RequireRole role="profesor"></RequireRole>
+      <RequireRole role="profesor">
       <section className="space-y-4">
         <h1 className="text-2xl font-semibold mb-4">Rendilo Profes</h1>
 
@@ -90,6 +90,7 @@ export default function ProfesPage() {
           </button>
         </div>
       </section>
+      </RequireRole>
     </>
   );
 }

@@ -43,8 +43,32 @@ export default function TakeExam() {
   const [ inicio, setInicio ]= useState<boolean>(true);
   const [ pocoTiempo, setPoco ] = useState<boolean>(false);
   const [ activo, setActivo ] = useState<boolean>(false);
+  const [questionOrder, setQuestionOrder] = useState<number[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const min = Math.floor(minutos / 60);
   const seg = minutos % 60;
+  const currentQuestionIndex = questionOrder[currentIndex];
+  const q = exam.questions[currentQuestionIndex];
+
+  
+
+  const mezclarPreguntas = () => {
+  const order = exam.questions.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  setQuestionOrder(order);
+  };
+  const siguientePregunta = () => {
+  if (currentIndex + 1 < exam.questions.length) {
+    setCurrentIndex(currentIndex + 1);
+  } else {
+    finishAndSubmit();
+  }
+};
+
 
   useEffect(()=>{
     let intervalo: NodeJS.Timeout | null = null;
@@ -81,6 +105,7 @@ export default function TakeExam() {
     });
     setAnswers(init);
     setMinutos(Math.max(0, (exam?.duration ?? 0) * 60));
+    mezclarPreguntas()
     setInicio(false);
     setActivo(true);
     document.documentElement.requestFullscreen();
@@ -90,7 +115,7 @@ export default function TakeExam() {
     <>
     { inicio ? (
     <>
-    <RequireRole role="alumno"></RequireRole>
+    <RequireRole role="alumno">
     <div className="space-y-3 py-3">
       <input
         className="border rounded px-3 py-2 w-full max-w-sm"
@@ -100,9 +125,11 @@ export default function TakeExam() {
       />
       <button onClick={start} className="px-6 py-1 bg-blue-700 rounded-lg hover:bg-blue-900 ">Rendir</button>
     </div>
+    </RequireRole>
     </>
     ):(
     <>
+    <RequireRole role="alumno">
     <div className="p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
@@ -116,85 +143,86 @@ export default function TakeExam() {
         </button>
       </div>
 
-      {/* Progreso */}
-      <p className="mb-4 text-sm sm:text-base">
-        Respondidas {answers.filter((a) => a !== undefined && a !== "").length} /{" "}
-        {exam.questions.length}
+    
+
+     {/* Pregunta actual */}
+    <div className="space-y-6">
+  {q && (
+    <div key={q.id} className="border p-3 sm:p-4 rounded shadow-sm">
+      <p className="font-semibold mb-2 text-sm sm:text-base">
+        Pregunta {currentIndex + 1} de {exam.questions.length}:{" "}
+        {q.examInstructions}
       </p>
 
-      {/* Lista de preguntas */}
-      <div className="space-y-6">
-        {exam.questions.map((q, i) => (
-          <div key={q.id} className="border p-3 sm:p-4 rounded shadow-sm">
-            <p className="font-semibold mb-2 text-sm sm:text-base">
-              Pregunta {i + 1}: {q.examInstructions}
-            </p>
-
-            {/* Multiple Choice (single option) */}
-            {q.type === "choice" &&
-              q.options.map((opt, j) => (
-                <label key={j} className="flex items-center gap-2 mb-1">
-                  <input
-                    type="radio"
-                    name={`q${i}`}
-                    value={j}
-                    checked={answers[i] === j}
-                    onChange={() => handleChange(i, j)}
-                  />
-                  <span className="text-sm sm:text-base">{opt.text}</span>
-                </label>
-              ))}
-
-            {/* Verdadero/Falso */}
-            {q.type === "tof" && (
-              <div className="flex flex-col sm:flex-row gap-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name={`q${i}`}
-                    checked={answers[i] === true}
-                    onChange={() => handleChange(i, true)}
-                  />
-                  Verdadero
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name={`q${i}`}
-                    checked={answers[i] === false}
-                    onChange={() => handleChange(i, false)}
-                  />
-                  Falso
-                </label>
-              </div>
-          )}
-
-            {/* Pregunta Abierta */}
-            {q.type === "open" && (
-              <textarea
-                className="w-full border p-2 rounded text-sm sm:text-base"
-                rows={3}
-                value={answers[i] || ""}  
-                onChange={(e) => handleChange(i, e.target.value)}
-              />
-            )}
-
-          </div>
+      {/* Multiple Choice (una opción) */}
+      {q.type === "choice" &&
+        q.options.map((opt, j) => (
+          <label key={j} className="flex items-center gap-2 mb-1">
+            <input
+              type="radio"
+              name={`q${currentQuestionIndex}`}
+              value={j}
+              checked={answers[currentQuestionIndex] === j}
+              onChange={() => handleChange(currentQuestionIndex, j)}
+            />
+            <span className="text-sm sm:text-base">{opt.text}</span>
+          </label>
         ))}
-      </div>
 
-      {/* Botón de envío */}
-      <button
-        className="mt-6 w-full sm:w-auto rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
-        onClick={onSubmit}
-      >
-        Enviar
-      </button>
+      {/* Verdadero/Falso */}
+      {q.type === "tof" && (
+        <div className="flex flex-col sm:flex-row gap-2">
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name={`q${currentQuestionIndex}`}
+              checked={answers[currentQuestionIndex] === true}
+              onChange={() => handleChange(currentQuestionIndex, true)}
+            />
+            Verdadero
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name={`q${currentQuestionIndex}`}
+              checked={answers[currentQuestionIndex] === false}
+              onChange={() => handleChange(currentQuestionIndex, false)}
+            />
+            Falso
+          </label>
+        </div>
+      )}
+
+      {/* Pregunta abierta */}
+      {q.type === "open" && (
+        <textarea
+          className="w-full border p-2 rounded text-sm sm:text-base"
+          rows={3}
+          value={answers[currentQuestionIndex] || ""}
+          onChange={(e) =>
+            handleChange(currentQuestionIndex, e.target.value)
+          }
+        />
+      )}
     </div>
+  )}
+    </div>
+
+{/* Botón siguiente / finalizar */}
+  <div className="flex justify-end mt-6">
+    <button
+    className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+    onClick={siguientePregunta}
+    >
+    {currentIndex + 1 === exam.questions.length ? "Finalizar" : "Siguiente"}
+    </button>
+  </div>
+  </div>
+    </RequireRole>
     </>
       )
     }
-    </>
+  </>
   );
   
 }

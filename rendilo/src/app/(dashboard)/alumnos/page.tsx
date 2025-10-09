@@ -8,7 +8,7 @@ export default function AlumnosPage() {
   const { exams } = useExamStore();
   return (
     <>
-    <RequireRole role="alumno"></RequireRole>
+    <RequireRole role="alumno">
     <section className="space-y-4">
       <h1 className="text-2xl font-semibold mb-4">Lista de examenes</h1>
       {exams.map(ex => (
@@ -33,6 +33,7 @@ export default function AlumnosPage() {
         </Card>
       ))}
     </section>
+    </RequireRole>
     </>
   );
 }

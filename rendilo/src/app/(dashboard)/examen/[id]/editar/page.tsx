@@ -14,7 +14,7 @@ export default function EditExam() {
 
   return (
     <>
-    <RequireRole role="profesor"></RequireRole>
+    <RequireRole role="profesor">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-white">Editar examen</h1>
         <button
@@ -117,7 +117,7 @@ export default function EditExam() {
             </div>
           </Card>
         </label>
-      ))}
+      ))}</RequireRole>
     </>
   );
 }
