@@ -11,6 +11,7 @@ export type Question =
   | { id: number; type: "choice"; examInstructions: string; options: Option[]}
   | { id: number; type: "tof"; examInstructions: string; tof: boolean}
   | { id: number; type: "open"; examInstructions: string}
+  | { id: number; type: "code"; examInstructions: string}
   ;
 
 export type Exam = {
@@ -112,7 +113,7 @@ export const useExamStore = create<State>()(
 
 
       reviewOpenAnswer: (examId, attemptId, questionIndex, isCorrect) => {
-         set((s) => ({
+          set((s) => ({
           exams: s.exams.map((e) => {
             if (e.id !== examId) return e;
             const attempts = (e.attempts ?? []).map((a) => {

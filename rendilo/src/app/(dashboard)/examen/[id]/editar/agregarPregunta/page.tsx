@@ -64,6 +64,14 @@ export default function EditExam() {
           examInstructions,
         };
         break;
+      
+      case "code":
+        newQuestion = {
+          id: Date.now(),
+          type: "code",
+          examInstructions,
+        };
+        break;
 
       default:
         alert("Debes seleccionar un tipo de pregunta");
@@ -129,9 +137,10 @@ export default function EditExam() {
             onChange={(e) => setOpcion(e.target.value)}
             className="rounded-xl border border-gray-300 px-3 py-2 w-full text-gray-100 bg-indigo-900/60 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           >
-            <option value="open">Pregunta abierta-Codigo</option>
+            <option value="open">Pregunta abierta</option>
             <option value="choice">Opcion multiple</option>
             <option value="tof">Verdadero o falso</option>
+            <option value= "code">Codigo</option>
           </select>
         </div>
       </div>

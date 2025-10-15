@@ -13,15 +13,15 @@ export default function TakeExam() {
   const exam = exams.find((e) => e.id === Number(id));
 
   // Inicializa respuestas
-  const [answers, setAnswers] = useState<any[]>([]);
+  const [answers, setAnswers] = useState<Record<string | number, any>>({});
   const [studentId, setStudentId] = useState<string>("");
   const [submitted, setSubmitted] = useState(false);
 
   if (!exam) return <p>No existe el examen.</p>;
   //if (exam.questions.length === 0) return <p>Este examen no tiene preguntas aún.</p>;
 
-  const handleChange = (index: number, value: any) => {
-    const updated = [...answers];
+  const handleChange = (index: string | number, value: any) => {
+    const updated = {...answers};
     updated[index] = value;
     setAnswers(updated);
   };
@@ -30,7 +30,8 @@ export default function TakeExam() {
   if (submitted) return;           // evita doble envío
   setSubmitted(true);              // candado
   setActivo(false);                // frena timer si estaba corriendo
-  submitAttempt(exam.id, studentId || "alumno", answers);
+  const orderedAnswers = questionOrder.map(i => answers[i]);
+  submitAttempt(exam.id, studentId || "alumno", orderedAnswers);
   router.push("/alumnos");
   setMinutos(0);
   };
@@ -204,6 +205,64 @@ export default function TakeExam() {
           }
         />
       )}
+
+      {/* Pregunta de código */}
+{q.type === "code" && (
+  <div className="mt-4">
+    <textarea
+      className="w-full border p-2 rounded font-mono text-sm sm:text-base"
+      rows={6}
+      placeholder="Escribí tu código aquí..."
+      value={answers[currentQuestionIndex] || ""}
+      onChange={(e) => handleChange(currentQuestionIndex, e.target.value)}
+    />
+
+    {/* Selector de lenguaje */}
+    <select
+      className="mt-2 border rounded p-1"
+      value={answers[currentQuestionIndex + "_lang"] || "50"} // valor por defecto C
+      onChange={(e) =>
+        handleChange(currentQuestionIndex + "_lang", e.target.value)
+      }
+    >
+      <option value="50">C (GCC 9.2.0)</option>
+      <option value="54">C++ (GCC 9.2.0)</option>
+      <option value="62">Java (OpenJDK 13)</option>
+      <option value="63">JavaScript (Node.js 12.14.0)</option>
+      <option value="71">Python (3.8.1)</option>
+    </select>
+
+    <button
+      className="mt-2 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+      onClick={async () => {
+        const languageId = answers[currentQuestionIndex + "_lang"] || "50"; // ✅ usa el lenguaje guardado
+        const res = await fetch("/api/compile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: answers[currentQuestionIndex],
+            language_id: languageId,
+          }),
+        });
+        const data = await res.json();
+
+        alert(
+          data.stdout
+            ? `Salida:\n${data.stdout}`
+            : data.stderr
+            ? `Error:\n${data.stderr}`
+            : data.compile_output
+            ? `Error de compilación:\n${data.compile_output}`
+            : JSON.stringify(data)
+        );
+      }}
+    >
+      Compilar
+    </button>
+  </div>
+)}
+
+
     </div>
   )}
     </div>
