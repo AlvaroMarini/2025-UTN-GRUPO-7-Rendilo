@@ -1,8 +1,14 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
+
 import { useExamStore } from "@/store/exams";
 import RequireRole from "@/components/requireRole";
+
+import CameraNoticeModal from "@/components/ui/CameraNoticeModal";
+import { useCamera } from "@/hook/useCamera";
+import { useCameraStore } from "@/store/camera";
+
 //import { clearInterval } from "timers";
 //Tiempo Inicial de 2 Minutos para pruebas
 
@@ -26,12 +32,17 @@ export default function TakeExam() {
     setAnswers(updated);
   };
   
+
+const [showCamNotice, setShowCamNotice] = useState(false);
+
+  
   const finishAndSubmit = () => {
   if (submitted) return;           // evita doble envío
   setSubmitted(true);              // candado
   setActivo(false);                // frena timer si estaba corriendo
   const orderedAnswers = questionOrder.map(i => answers[i]);
   submitAttempt(exam.id, studentId || "alumno", orderedAnswers);
+  stopCamera(); 
   router.push("/alumnos");
   setMinutos(0);
   };
@@ -71,6 +82,9 @@ export default function TakeExam() {
 };
 
 
+const { videoRef, camOn, error, startCamera, stopCamera } = useCamera();
+const { preferredDeviceId } = useCameraStore();
+
   useEffect(()=>{
     let intervalo: NodeJS.Timeout | null = null;
     if(activo){
@@ -108,8 +122,8 @@ export default function TakeExam() {
     setMinutos(Math.max(0, (exam?.duration ?? 0) * 60));
     mezclarPreguntas()
     setInicio(false);
-    setActivo(true);
-    document.documentElement.requestFullscreen();
+    setShowCamNotice(true);
+    setActivo(true); 
   };
 
   return (
@@ -117,6 +131,7 @@ export default function TakeExam() {
     { inicio ? (
     <>
     <RequireRole role="alumno">
+
     <div className="space-y-3 py-3">
       <input
         className="border rounded px-3 py-2 w-full max-w-sm"
@@ -132,6 +147,27 @@ export default function TakeExam() {
     <>
     <RequireRole role="alumno">
     <div className="p-6">
+       <div
+          className="
+          fixed left-3 top-[84px]
+          w-[320px] h-[240px]
+          md:left-6 md:top-[96px]
+          md:w-[360px] md:h-[270px]
+          rounded-xl overflow-hidden shadow-2xl
+          bg-black border border-white/10
+          z-40">
+        <video
+            className="w-full h-full object-cover pointer-events-none"
+            disablePictureInPicture
+            controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+            ref={videoRef}
+            id="inputvideo"
+            autoPlay
+            muted
+            playsInline
+            onContextMenu={(e) => e.preventDefault()}
+            />
+    </div>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
         <h1 className="text-xl sm:text-2xl font-semibold">{exam.title}</h1>
@@ -144,7 +180,17 @@ export default function TakeExam() {
         </button>
       </div>
 
-    
+<CameraNoticeModal
+  visible={showCamNotice}
+  onAccept={async () => {
+    setShowCamNotice(false);
+    document.documentElement.requestFullscreen().catch(() => {});
+    await startCamera({ deviceId: preferredDeviceId }); // o sin parámetro si no usás store
+  }}
+  onCancel={() => setShowCamNotice(false)}
+/>
+
+
 
      {/* Pregunta actual */}
     <div className="space-y-6">
@@ -285,3 +331,4 @@ export default function TakeExam() {
   );
   
 }
+
