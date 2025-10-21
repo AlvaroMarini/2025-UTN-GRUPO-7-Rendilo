@@ -41,8 +41,8 @@ const [showCamNotice, setShowCamNotice] = useState(false);
   setSubmitted(true);              // candado
   setActivo(false);                // frena timer si estaba corriendo
   stopCamera(); 
-  submitAttempt(exam.id, studentId || "alumno", answers);
-  router.push("/alumnos");
+  //submitAttempt(exam.id, studentId || "alumno", answers);
+  router.push("/profesores");
   setMinutos(0);
   };
 
@@ -133,7 +133,7 @@ const { preferredDeviceId } = useCameraStore();
 
     <div className="space-y-3 py-3">
     
-      <button onClick={start} className="px-6 py-1 bg-blue-700 rounded-lg hover:bg-blue-900 ">Probar examen</button>
+      <button onClick={start} className="px-6 py-1 bg-blue-700 rounded-lg hover:bg-blue-900 ">Iniciar prueba</button>
     </div>
     </RequireRole>
     </>
@@ -146,10 +146,10 @@ const { preferredDeviceId } = useCameraStore();
         <h1 className="text-xl sm:text-2xl font-semibold">{exam.title}</h1>
         <span>Tiempo Restante <span className="font-bold"/*{`${pocoTiempo ? "text-red-500 font-bold" : "text-green-500 font-bold"}`}*/>{String(min).padStart(2,'0')} : {String(seg).padStart(2,'0')}</span></span>
         <button
-          className="text-sm underline self-start sm:self-auto"
+          className="px-4 py-2 text-sm self-start sm:self-auto cursor-pointer hover:bg-indigo-600 rounded-full"
           onClick={finishAndSubmit}
         >
-          Finalizar
+          Finalizar prueba
         </button>
       </div>
 
@@ -219,7 +219,7 @@ const { preferredDeviceId } = useCameraStore();
 {/* Botón siguiente / finalizar */}
   <div className="flex justify-end mt-6">
     <button
-    className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+    className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base hover:bg-green-800 cursor-pointer"
     onClick={siguientePregunta}
     >
     {currentIndex + 1 === exam.questions.length ? "Finalizar" : "Siguiente"}
