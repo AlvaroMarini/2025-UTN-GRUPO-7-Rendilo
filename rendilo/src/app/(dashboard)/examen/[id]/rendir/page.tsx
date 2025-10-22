@@ -9,6 +9,10 @@ import CameraNoticeModal from "@/components/ui/CameraNoticeModal";
 import { useCamera } from "@/hook/useCamera";
 import { useCameraStore } from "@/store/camera";
 
+import FaceWarningModal from "@/components/ui/FaceWarningModal";
+import MultiFaceModal from "@/components/ui/MultiFaceModal";
+
+
 //import { clearInterval } from "timers";
 //Tiempo Inicial de 2 Minutos para pruebas
 
@@ -80,8 +84,13 @@ const [showCamNotice, setShowCamNotice] = useState(false);
   }
 };
 
+const [showFaceWarning, setShowFaceWarning] = useState(false);
+const [countdown, setCountdown] = useState(10);
+const [cameraReady, setCameraReady] = useState(false);
+const [showMultiFaceWarning, setShowMultiFaceWarning] = useState(false);
 
-const { videoRef, camOn, error, startCamera, stopCamera } = useCamera();
+
+const { videoRef, camOn, error, startCamera, stopCamera, faceCount } = useCamera();
 const { preferredDeviceId } = useCameraStore();
 
   useEffect(()=>{
@@ -109,6 +118,61 @@ const { preferredDeviceId } = useCameraStore();
       if (min < 1) setPoco(true);
   }, [minutos, submitted]);
 
+useEffect(() => {
+    if (camOn) {
+      const t = setTimeout(() => setCameraReady(true), 3000);
+      return () => clearTimeout(t);
+    } else {
+      setCameraReady(false);
+    }
+  }, [camOn]);
+
+
+useEffect(() => {
+  if (!exam.withCamera || submitted || !cameraReady) return;
+
+  let intervalRef: NodeJS.Timeout | null = null;
+
+  // Caso: múltiples rostros → enviar de inmediato
+  if (faceCount > 1 && !showMultiFaceWarning) {
+    setShowMultiFaceWarning(true);
+    setShowFaceWarning(false);
+    setCountdown(0);
+
+    setTimeout(() => {
+      finishAndSubmit(); // Enviar inmediatamente
+    }, 2500);
+  }
+
+  // Caso: no hay rostro → cuenta regresiva
+  if (faceCount === 0 && !showFaceWarning && !showMultiFaceWarning) {
+    setShowFaceWarning(true);
+    setCountdown(10);
+
+    intervalRef = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef!);
+          setShowFaceWarning(false);
+          finishAndSubmit(); // Enviar después de 10s
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }
+
+  // Caso: vuelve rostro normal
+  if (faceCount === 1 && (showFaceWarning || showMultiFaceWarning)) {
+    setShowFaceWarning(false);
+    setShowMultiFaceWarning(false);
+    setCountdown(10);
+  }
+
+  return () => {
+    if (intervalRef) clearInterval(intervalRef);
+  };
+}, [faceCount, cameraReady, exam.withCamera, submitted]);
 
   const start = ()=>{
     // Inicializar respuestas acorde a tipos
@@ -121,7 +185,9 @@ const { preferredDeviceId } = useCameraStore();
     setMinutos(Math.max(0, (exam?.duration ?? 0) * 60));
     mezclarPreguntas()
     setInicio(false);
+    if (exam.withCamera) {
     setShowCamNotice(true);
+    }
     setActivo(true); 
   };
 
@@ -146,6 +212,7 @@ const { preferredDeviceId } = useCameraStore();
     <>
     <RequireRole role="alumno">
     <div className="p-6">
+      {exam.withCamera && (
        <div
           className="
           fixed left-3 top-[84px]
@@ -167,6 +234,16 @@ const { preferredDeviceId } = useCameraStore();
             onContextMenu={(e) => e.preventDefault()}
             />
     </div>
+    )}
+    {/* Indicador de detección facial */}
+{exam.withCamera && (
+  <div className="fixed bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+    {faceCount === 0 && <p className="text-red-500">No se detecta ningún rostro</p>}
+    {faceCount > 1 && <p className="text-yellow-400">Se detectan múltiples rostros</p>}
+    {faceCount === 1 && <p className="text-green-400">Rostro detectado</p>}
+  </div>
+)}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
         <h1 className="text-xl sm:text-2xl font-semibold">{exam.title}</h1>
@@ -179,15 +256,18 @@ const { preferredDeviceId } = useCameraStore();
         </button>
       </div>
 
-<CameraNoticeModal
-  visible={showCamNotice}
-  onAccept={async () => {
-    setShowCamNotice(false);
-    document.documentElement.requestFullscreen().catch(() => {});
-    await startCamera({ deviceId: preferredDeviceId }); // o sin parámetro si no usás store
-  }}
-  onCancel={() => setShowCamNotice(false)}
-/>
+  <CameraNoticeModal
+    visible={showCamNotice}
+    onAccept={async () => {
+      setShowCamNotice(false);
+      document.documentElement.requestFullscreen().catch(() => {});
+      await startCamera({ deviceId: preferredDeviceId }); // o sin parámetro si no usás store
+    }}
+    onCancel={() => setShowCamNotice(false)}
+  />
+
+<FaceWarningModal visible={showFaceWarning} countdown={countdown} />
+<MultiFaceModal visible={showMultiFaceWarning} />
 
 
 

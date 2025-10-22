@@ -5,6 +5,7 @@ import { Card, Pill } from "@/components/ui";
 import Link from "next/link";
 import RequireRole from "@/components/requireRole";
 
+
 export default function EditExam() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -71,7 +72,16 @@ export default function EditExam() {
           onChange={(e) => updateExam(exam.id, { duration: Math.max(0, Number(e.target.value) || 0) })}
         />
       </label>
-
+      <label className="flex items-center gap-2 mt-4">
+          <input
+            type="checkbox"
+            checked={exam.withCamera ?? false}
+            onChange={(e) => updateExam(exam.id, { withCamera: e.target.checked })}
+          />
+          <span className="text-white text-sm font-medium">
+          Requiere cámara para rendir
+          </span>
+      </label>
       {/* …resto igual al ejemplo anterior… */}
       <div className="flex gap-2">
         <Link
