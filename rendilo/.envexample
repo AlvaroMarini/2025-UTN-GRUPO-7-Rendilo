@@ -1,0 +1,13 @@
+# --- App ---
+NODE_ENV=${NODE_ENV}
+PORT=${PORT}
+
+# --- Base de datos ---
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_USER=${DB_USER}
+DB_PASSWORD=${DB_PASSWORD}
+DB_NAME=${DB_NAME}
+
+# --- MySQL root ---
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
