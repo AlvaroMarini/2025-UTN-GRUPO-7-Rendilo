@@ -12,7 +12,9 @@ import { useCameraStore } from "@/store/camera";
 import FaceWarningModal from "@/components/ui/FaceWarningModal";
 import MultiFaceModal from "@/components/ui/MultiFaceModal";
 
-
+import { useExamSecurity } from "@/hook/useExamSecurity";
+import AutoSubmitFocusModal from "@/components/ui/AutoSubmitFocusModal";
+import ExitExamModal from "@/components/ui/ExitExamModal";
 //import { clearInterval } from "timers";
 //Tiempo Inicial de 2 Minutos para pruebas
 
@@ -88,7 +90,9 @@ const [showFaceWarning, setShowFaceWarning] = useState(false);
 const [countdown, setCountdown] = useState(10);
 const [cameraReady, setCameraReady] = useState(false);
 const [showMultiFaceWarning, setShowMultiFaceWarning] = useState(false);
+const [ignoreFocus, setIgnoreFocus] = useState(false);
 
+const {showExitModal,confirmExit,cancelExit,showAutoSubmitFocusModal,} = useExamSecurity({submitted,startProtection: !inicio,finishAndSubmit,ignoreFocus});
 
 const { videoRef, camOn, error, startCamera, stopCamera, faceCount } = useCamera();
 const { preferredDeviceId } = useCameraStore();
@@ -174,7 +178,7 @@ useEffect(() => {
   };
 }, [faceCount, cameraReady, exam.withCamera, submitted]);
 
-  const start = ()=>{
+  const start = async  ()=>{
     // Inicializar respuestas acorde a tipos
     const init = (exam?.questions || []).map((q: any) => {
       if (q.type === "choice") return -1;
@@ -185,10 +189,22 @@ useEffect(() => {
     setMinutos(Math.max(0, (exam?.duration ?? 0) * 60));
     mezclarPreguntas()
     setInicio(false);
-    if (exam.withCamera) {
-    setShowCamNotice(true);
-    }
     setActivo(true); 
+   try {
+  await document.documentElement.requestFullscreen();
+
+  if (exam.withCamera) {
+    // Ignoramos temporalmente la detección de foco
+    setIgnoreFocus(true);
+    await startCamera({ deviceId: preferredDeviceId });
+    // Esperamos 2 segundos para estabilizar permisos
+    setTimeout(() => setIgnoreFocus(false), 2000);
+  }
+} catch (err) {
+  console.error("Error al iniciar fullscreen o cámara:", err);
+  setIgnoreFocus(false);
+}
+
   };
 
   return (
@@ -268,6 +284,13 @@ useEffect(() => {
 
 <FaceWarningModal visible={showFaceWarning} countdown={countdown} />
 <MultiFaceModal visible={showMultiFaceWarning} />
+
+<ExitExamModal
+  visible={showExitModal}
+  onConfirm={confirmExit}
+  onCancel={cancelExit}
+/>
+<AutoSubmitFocusModal visible={showAutoSubmitFocusModal} />
 
 
 
