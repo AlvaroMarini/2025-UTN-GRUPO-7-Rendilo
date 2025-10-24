@@ -30,7 +30,7 @@ export default function TakeExam() {
   const [submitted, setSubmitted] = useState(false);
 
   if (!exam) return <p>No existe el examen.</p>;
-  //if (exam.questions.length === 0) return <p>Este examen no tiene preguntas aún.</p>;
+  if (exam.questions.length === 0) return <p>Este examen no tiene preguntas aún.</p>;
 
   const handleChange = (index: number, value: any) => {
     const updated = [...answers];
@@ -84,6 +84,11 @@ const [showCamNotice, setShowCamNotice] = useState(false);
   } else {
     finishAndSubmit();
   }
+};
+const anteriorPregunta = () => {
+  if (currentIndex - 1 >= 0) {
+    setCurrentIndex(currentIndex - 1);
+  } 
 };
 
 const [showFaceWarning, setShowFaceWarning] = useState(false);
@@ -358,7 +363,13 @@ useEffect(() => {
     </div>
 
 {/* Botón siguiente / finalizar */}
-  <div className="flex justify-end mt-6">
+  <div className="flex justify-between mt-6">
+   {currentIndex - 1 >= 0 && <button
+    className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+    onClick={anteriorPregunta}
+    >
+    Anterior
+    </button>}
     <button
     className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
     onClick={siguientePregunta}
