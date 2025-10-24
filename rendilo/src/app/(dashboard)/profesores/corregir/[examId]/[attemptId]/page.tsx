@@ -39,6 +39,20 @@ export default function CorregirIntentoPage() {
     }
     router.push("/profesores");
   }
+  
+  function toText(v: any): string {
+  if (v == null) return "";
+  const t = typeof v;
+  if (t === "string" || t === "number" || t === "boolean") return String(v);
+  if (t === "object") {
+    // casos típicos: { output: "..." } ó estructuras similares
+    if ("output" in v && (typeof v.output === "string" || typeof v.output === "number" || typeof v.output === "boolean")) {
+      return String((v as any).output);
+    }
+    try { return JSON.stringify(v); } catch { return ""; }
+    }
+    return "";
+  }
 
   return (
     <>
@@ -73,7 +87,7 @@ export default function CorregirIntentoPage() {
               <div className="text-sm">
                 Opción marcada: <strong>{typeof answers[i] === "number" ? answers[i] : "-"}</strong>
                 {typeof answers[i] === "number" && q.options?.[answers[i]] && (
-                  <span className="ml-2 opacity-80">({q.options[answers[i]].text})</span>
+                  <span className="ml-2 opacity-80">({toText(q.options?.[answers[i]]?.text)})</span>
                 )}
                 <div className="text-xs opacity-70 mt-2">* Se corrige automáticamente.</div>
               </div>
@@ -90,7 +104,7 @@ export default function CorregirIntentoPage() {
               <div className="space-y-3">
                 <div className="text-sm opacity-80">Respuesta del alumno:</div>
                 <div className="rounded border p-3 bg-zinc-900/30 whitespace-pre-wrap text-sm">
-                  {answers[i] ?? ""}
+                  {toText(answers[i])}
                 </div>
                 <div className="flex items-center gap-2">
                   <button

@@ -104,7 +104,7 @@ export default function EditExam() {
         </button>
       </div>
       {exam.questions.map((q, index) => (
-        <label>
+        <label className="block mt-4" key={index}>
           Pregunta {index + 1}
           <Card key={index}>
             <div className="flex items-center justify-between">
