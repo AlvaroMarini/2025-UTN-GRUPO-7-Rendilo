@@ -79,6 +79,11 @@ const [showCamNotice, setShowCamNotice] = useState(false);
     finishAndSubmit();
   }
 };
+const anteriorPregunta = () => {
+    if (currentIndex - 1 >= 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
 
 
 const { videoRef, camOn, error, startCamera, stopCamera } = useCamera();
@@ -212,12 +217,99 @@ const { preferredDeviceId } = useCameraStore();
           }
         />
       )}
+
+      {q.type === "code" && (
+                    <div className="mt-4 space-y-3">
+                      <textarea
+                        className="w-full border p-2 rounded font-mono bg-gray-900 text-green-200 text-sm sm:text-base"
+                        rows={8}
+                        placeholder="Escribí tu código aquí..."
+                        value={answers[currentQuestionIndex]?.code || ""}
+                        onChange={(e) =>
+                          handleChange(currentQuestionIndex, {
+                            ...(answers[currentQuestionIndex] || {}),
+                            code: e.target.value,
+                          })
+                        }
+                      />
+
+                      <select
+                        className="border rounded p-2 bg-gray-800 text-white"
+                        value={answers[currentQuestionIndex]?.language_id || 50}
+                        onChange={(e) =>
+                          handleChange(currentQuestionIndex, {
+                            ...(answers[currentQuestionIndex] || {}),
+                            language_id: Number(e.target.value),
+                          })
+                        }
+                      >
+                        <option value="50">C (GCC 9.2.0)</option>
+                        <option value="54">C++ (GCC 9.2.0)</option>
+                        <option value="62">Java (OpenJDK 13)</option>
+                        <option value="63">JavaScript (Node.js 12.14.0)</option>
+                        <option value="71">Python (3.8.1)</option>
+                      </select>
+
+                      <textarea
+                        className="w-full border p-2 rounded font-mono bg-gray-950 text-gray-100"
+                        rows={3}
+                        placeholder="Entrada (stdin)... ej: valores para scanf o input"
+                        value={answers[currentQuestionIndex]?.stdin || ""}
+                        onChange={(e) =>
+                          handleChange(currentQuestionIndex, {
+                            ...(answers[currentQuestionIndex] || {}),
+                            stdin: e.target.value,
+                          })
+                        }
+                      />
+
+                      <button
+                        className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        onClick={async () => {
+                          const current = answers[currentQuestionIndex] || {};
+                          const res = await fetch("/api/compile", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              code: current.code,
+                              language_id: current.language_id || 50,
+                              stdin: current.stdin || "",
+                            }),
+                          });
+                          const data = await res.json();
+
+                          handleChange(currentQuestionIndex, {
+                            ...current,
+                            output:
+                              data.stdout ||
+                              data.stderr ||
+                              data.compile_output ||
+                              "Sin salida",
+                          });
+                        }}
+                      >
+                        Compilar y Ejecutar
+                      </button>
+
+                      <div className="bg-black text-green-400 font-mono p-3 rounded h-40 overflow-auto">
+                        <pre>
+                          {answers[currentQuestionIndex]?.output || "Salida aparecerá aquí..."}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
     </div>
   )}
     </div>
 
 {/* Botón siguiente / finalizar */}
-  <div className="flex justify-end mt-6">
+  <div className="flex justify-between mt-6">
+    {currentIndex - 1 >= 0 && <button
+                className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+                onClick={anteriorPregunta}
+              >
+              Anterior
+              </button>}
     <button
     className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base hover:bg-green-800 cursor-pointer"
     onClick={siguientePregunta}

@@ -103,7 +103,7 @@ export default function TakeExam() {
     setMinutos(Math.max(0, (exam?.duration ?? 0) * 60));
     mezclarPreguntas();
     setInicio(false);
-    setShowCamNotice(true);
+    if (exam.withCamera) setShowCamNotice(true);
     setActivo(true);
 
     try {
@@ -427,7 +427,13 @@ export default function TakeExam() {
               )}
             </div>
 
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-between mt-6">
+            {currentIndex - 1 >= 0 && <button
+                className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+                onClick={anteriorPregunta}
+              >
+              Anterior
+              </button>}
               <button
                 className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
                 onClick={siguientePregunta}
