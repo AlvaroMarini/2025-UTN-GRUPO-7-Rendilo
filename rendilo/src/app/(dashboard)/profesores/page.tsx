@@ -51,6 +51,15 @@ export default function ProfesPage() {
             <div className="flex items-center justify-between">
               <Pill className="text-base">{ex.title}</Pill>
               <div>
+                <Link href={`/examen/${ex.id}/probar`} 
+                  className="inline-flex items-center justify-center rounded-full border border-zinc-600 
+                   px-4 py-1.5 mr-3 text-zinc-200
+                   bg-zinc-900 transition
+                   hover:bg-indigo-600 hover:text-white hover:border-indigo-500
+                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
+                >Probar</Link>
+
+
                 <Link href={`/examen/${ex.id}/editar`} 
                   className="inline-flex items-center justify-center rounded-full border border-zinc-600 
                    px-4 py-1.5 text-zinc-200

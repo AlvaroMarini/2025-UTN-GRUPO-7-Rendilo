@@ -19,13 +19,13 @@ export default function LoginPage() {
       </p>
       <div className="grid gap-3">
         <button
-          className="rounded-xl border px-4 py-2 hover:bg-zinc-50"
+          className="rounded-xl border px-4 py-2 hover:bg-zinc-700"
           onClick={() => handleLogin("profesor")}
         >
           Entrar como Profesor (demo)
         </button>
         <button
-          className="rounded-xl border px-4 py-2 hover:bg-zinc-50"
+          className="rounded-xl border px-4 py-2 hover:bg-zinc-700"
           onClick={() => handleLogin("alumno")}
         >
           Entrar como Alumno (demo)

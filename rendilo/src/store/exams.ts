@@ -24,6 +24,7 @@ export type Exam = {
   duration?: number;
   attempts?: Attempt[];
   needsReview?: boolean;
+  withCamera?: boolean;
 };
 
 type State = {
@@ -52,8 +53,8 @@ export const useExamStore = create<State>()(
   persist(
     (set, get) => ({
       exams: [
-        { id: 1, title: "Examen 1", published: true, questions: [], lastScore: null, attempts: [], needsReview: false },
-        { id: 2, title: "Examen 2", published: false, questions: [], lastScore: 0, attempts: [], needsReview: false },
+        { id: 1, title: "Examen 1", published: true, questions: [], lastScore: null, attempts: [], needsReview: false, withCamera: false },
+        { id: 2, title: "Examen 2", published: false, questions: [], lastScore: 0, attempts: [], needsReview: false, withCamera: false },
       ],
 
 

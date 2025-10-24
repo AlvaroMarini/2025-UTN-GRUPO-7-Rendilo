@@ -37,7 +37,7 @@ export default function NavTabs() {
 
       {role && (
         <button
-          className="rounded-full px-3 py-1.5 border hover:bg-zinc-50"
+          className="rounded-full px-3 py-1.5 border hover:bg-zinc-400 cursor-pointer"
           onClick={() => {
             logout();
             router.replace("/login");
