@@ -12,6 +12,8 @@ import { useCameraStore } from "@/store/camera";
 import FaceWarningModal from "@/components/ui/FaceWarningModal";
 import MultiFaceModal from "@/components/ui/MultiFaceModal";
 
+
+
 import { useExamSecurity } from "@/hook/useExamSecurity";
 import AutoSubmitFocusModal from "@/components/ui/AutoSubmitFocusModal";
 import ExitExamModal from "@/components/ui/ExitExamModal";
@@ -101,6 +103,18 @@ const {showExitModal,confirmExit,cancelExit,showAutoSubmitFocusModal,} = useExam
 
 const { videoRef, camOn, error, startCamera, stopCamera, faceCount } = useCamera();
 const { preferredDeviceId } = useCameraStore();
+
+const [screenWidth, setScreenWidth] = useState<number | null>(null);
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    setScreenWidth(window.innerWidth);
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }
+}, []);
+
 
   useEffect(()=>{
     let intervalo: NodeJS.Timeout | null = null;
@@ -234,28 +248,29 @@ useEffect(() => {
     <RequireRole role="alumno">
     <div className="p-6">
       {exam.withCamera && (
-       <div
-          className="
-          fixed left-3 top-[84px]
-          w-[320px] h-[240px]
-          md:left-6 md:top-[96px]
-          md:w-[360px] md:h-[270px]
-          rounded-xl overflow-hidden shadow-2xl
-          bg-black border border-white/10
-          z-40">
-        <video
-            className="w-full h-full object-cover pointer-events-none"
-            disablePictureInPicture
-            controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
-            ref={videoRef}
-            id="inputvideo"
-            autoPlay
-            muted
-            playsInline
-            onContextMenu={(e) => e.preventDefault()}
-            />
-    </div>
-    )}
+            <div
+            className={`
+            fixed z-40 bg-black border border-white/10 rounded-xl overflow-hidden shadow-2xl
+            transition-all duration-300
+            ${screenWidth && screenWidth < 640
+            ? "right-3 top-24 w-[180px] h-[135px]" // móvil
+            : "left-4 bottom-4 w-[220px] h-[160px]" // desktop
+            }`}>
+    <video
+      className="w-full h-full object-cover pointer-events-none"
+      disablePictureInPicture
+      controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
+      onContextMenu={(e) => e.preventDefault()}
+    />
+  </div>
+)}
+
+
+            
     {/* Indicador de detección facial */}
 {exam.withCamera && (
   <div className="fixed bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg z-50">

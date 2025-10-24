@@ -18,27 +18,29 @@ export function useExamSecurity({
   const [showAutoSubmitFocusModal, setShowAutoSubmitFocusModal] = useState(false); 
 
   // Detectar pérdida de foco (cambio de pestaña, minimizar, etc.)
-  useEffect(() => {
-    if (submitted || !startProtection || ignoreFocus) return;
+ useEffect(() => {
+  if (submitted || !startProtection || ignoreFocus) return;
 
-    function handleFocusLoss() {
-      console.warn("⚠️ Examen finalizado por pérdida de foco.");
-      setShowAutoSubmitFocusModal(true);
-      finishAndSubmit(); 
-    }
+  function handleFocusLoss() {
+    console.warn("⚠️ Examen finalizado por pérdida de foco.");
+    setShowAutoSubmitFocusModal(true);
+    finishAndSubmit(); 
+  }
 
-    window.addEventListener("blur", handleFocusLoss);
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) handleFocusLoss();
-    });
+  function handleVisibilityChange() {
+    if (document.hidden) handleFocusLoss();
+  }
 
-    return () => {
-      window.removeEventListener("blur", handleFocusLoss);
-      document.removeEventListener("visibilitychange", () => {
-        if (document.hidden) handleFocusLoss();
-      });
-    };
-  }, [submitted, startProtection, ignoreFocus]);
+  window.addEventListener("blur", handleFocusLoss);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  return () => {
+    window.removeEventListener("blur", handleFocusLoss);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+  };
+}, [submitted, startProtection, ignoreFocus, finishAndSubmit]);
+
+  
 
   // Bloquear teclas (Escape, Alt+Tab, Ctrl+Tab, Cmd+Tab, F11)
   useEffect(() => {
