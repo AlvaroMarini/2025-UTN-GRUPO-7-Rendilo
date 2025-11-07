@@ -13,6 +13,23 @@ export default function EditExam() {
   const exam = exams.find((e) => e.id === Number(id));
   if (!exam) return <p>No existe el examen.</p>;
 
+const validarGuardar = () => {
+   if (!exam.title.trim()) {
+      alert("El título del examen no puede estar vacío");
+      return false;
+   } 
+   if (exam.duration == undefined || exam.duration == 0) {
+      alert("La duración del examen no puede estar vacía");
+      return false;
+   }
+   if (exam.questions.length === 0) {
+      alert("El examen debe tener al menos una pregunta");
+      return false;
+   }
+    return true;
+  }
+
+
   return (
     <>
     <RequireRole role="profesor">
@@ -24,7 +41,9 @@ export default function EditExam() {
                after:bg-blue-500 after:transition-all after:duration-300
                hover:text-blue-400 hover:after:w-full
                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
-          onClick={() => router.push("/profesores")}
+          onClick={() => {if (validarGuardar()) {
+            router.push(`/profesores`);
+          }}}
         >
           Volver
         </button>
@@ -34,7 +53,7 @@ export default function EditExam() {
         {/* Campo de Título */}
         <label className="block">
           <span className="block mb-1 text-white text-sm font-medium">
-            Título del examen
+            Título del examen*
           </span>
           <input
             className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
@@ -62,14 +81,14 @@ export default function EditExam() {
       {/*Duracion*/}
       <label className="block">
         <span className="block mb-1 text-white text-sm font-medium">
-          Duracion del examen (minutos)
+          Duracion del examen* (minutos)
         </span>
         <input
           type="number"
           className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
           placeholder="Ingrese la duracion en minutos"
-          value={exam.duration ?? ""}
-          onChange={(e) => updateExam(exam.id, { duration: Math.max(0, Number(e.target.value) || 0) })}
+          value={exam.duration }
+          onChange={(e) => updateExam(exam.id, { duration: Math.max(0, Number(e.target.value)) })}
         />
       </label>
       <label className="flex items-center gap-2 mt-4">
@@ -98,7 +117,9 @@ export default function EditExam() {
              shadow-sm transition duration-200
              hover:bg-indigo-500 hover:shadow-md 
              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
-          onClick={() => router.push("/profesores")}
+           onClick={() => {if (validarGuardar()) {
+            router.push(`/profesores`);
+          }}}
         >
           Guardar
         </button>

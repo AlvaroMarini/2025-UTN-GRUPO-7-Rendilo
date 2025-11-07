@@ -36,6 +36,15 @@ export default function EditExam() {
           alert("Debes agregar al menos una opción");
           return;
         }
+
+        if (opciones.length < 2) {
+          alert("Debes agregar al menos dos opciones");
+          return;
+        }
+        if (opciones.map((op)=> op.isCorrect).every((isCorrect) => !isCorrect)) {
+          alert("Debes seleccionar al menos una opción correcta");
+          return;
+        }
         newQuestion = {
           id: Date.now(),
           type: "choice",
@@ -165,6 +174,10 @@ export default function EditExam() {
                 hover:bg-indigo-500 hover:shadow-md 
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
                 onClick={() => {
+                  if (opciones.find((op) => op.text === nuevaOpcion)?.text) {
+                    alert("La opción ya existe");
+                    return;
+                  }
                   if (nuevaOpcion) {
                     setOpciones([
                       ...opciones,
