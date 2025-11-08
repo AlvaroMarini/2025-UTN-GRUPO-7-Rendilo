@@ -18,7 +18,7 @@ export default function EditExam() {
   if (!exam) return <p>No existe el examen.</p>;
 
   const [showErrors, setShowErrors] = useState(false);
-  const [examCopy, setExamCopy] = useState({ ...exam });
+  const [examCopy, setExamCopy] = useState({ ...exam, withCamera: exam.withCamera ?? false });
 
   type ExamType = typeof exam;
   
@@ -43,7 +43,11 @@ const validarGuardar = () => {
 
   const handleSave = () => {
     if (validarGuardar()) {
-      updateExam(exam.id, examCopy);
+      const updatedExam = {
+        ...examCopy,
+        withCamera: examCopy.withCamera ?? false,
+      };
+      updateExam(exam.id, updatedExam);
       router.push(`/profesores`);
     }
   }
@@ -120,7 +124,7 @@ const validarGuardar = () => {
       <label className="flex items-center gap-2 mt-4">
           <input
             type="checkbox"
-            checked={examCopy.withCamera ?? false}
+            checked={!!examCopy.withCamera}
             onChange={(e) => updateExamCopy({ withCamera: e.target.checked })}
           />
           <span className="text-white text-sm font-medium">

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
+
 export type CameraConstraints = {
   deviceId?: string;
   width?: number;
