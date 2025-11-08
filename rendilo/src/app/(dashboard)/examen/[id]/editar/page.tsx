@@ -4,6 +4,9 @@ import { useExamStore } from "@/store/exams";
 import { Card, Pill } from "@/components/ui";
 import Link from "next/link";
 import RequireRole from "@/components/requireRole";
+import Hint from "@/components/alerts/Hint";
+import { useState } from "react"; 
+import { showWarning } from "@/store/alerts";
 
 
 
@@ -14,22 +17,41 @@ export default function EditExam() {
   const exam = exams.find((e) => e.id === Number(id));
   if (!exam) return <p>No existe el examen.</p>;
 
+  const [showErrors, setShowErrors] = useState(false);
+  const [examCopy, setExamCopy] = useState({ ...exam });
+
+  type ExamType = typeof exam;
+  
+  const updateExamCopy = (changes: Partial<ExamType>) => {
+    setExamCopy(prev => ({ ...prev, ...changes }));
+  };
+
 const validarGuardar = () => {
-   if (!exam.title.trim()) {
-      alert("El título del examen no puede estar vacío");
+  setShowErrors(true);
+   if (!examCopy.title.trim()) {
       return false;
    } 
-   if (exam.duration == undefined || exam.duration == 0) {
-      alert("La duración del examen no puede estar vacía");
+   if (examCopy.duration == undefined || examCopy.duration == 0) {
       return false;
    }
-   if (exam.questions.length === 0) {
-      alert("El examen debe tener al menos una pregunta");
+   if (examCopy.questions.length === 0) {
+      showWarning("El examen debe tener al menos una pregunta");
       return false;
    }
     return true;
   }
 
+  const handleSave = () => {
+    if (validarGuardar()) {
+      updateExam(exam.id, examCopy);
+      router.push(`/profesores`);
+    }
+  }
+
+  const handleBack = () => {
+    // Discard changes and go back
+    router.push(`/profesores`);
+  }
 
   return (
     <>
@@ -42,9 +64,7 @@ const validarGuardar = () => {
                after:bg-blue-500 after:transition-all after:duration-300
                hover:text-blue-400 hover:after:w-full
                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
-          onClick={() => {if (validarGuardar()) {
-            router.push(`/profesores`);
-          }}}
+          onClick={handleBack}
         >
           Volver
         </button>
@@ -58,10 +78,12 @@ const validarGuardar = () => {
           </span>
           <input
             className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
-            value={exam.title}
-            onChange={(e) => updateExam(exam.id, { title: e.target.value })}
+            value={examCopy.title}
+            onChange={(e) => updateExamCopy({ title: e.target.value })}
             placeholder="Escribe el título aquí"
           />
+          <Hint show={showErrors && !examCopy.title.trim()}
+            message="El título del examen es obligatorio."type="error"/>
         </label>
 
         {/* Campo de Descripción */}
@@ -73,8 +95,8 @@ const validarGuardar = () => {
             className="rounded-xl border border-gray-300  px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
             rows={4}
             placeholder="Agrega detalles o instrucciones del examen"
-            value={exam.description ?? ""}
-            onChange={(e) => updateExam(exam.id, { description: e.target.value })}
+            value={examCopy.description ?? ""}
+            onChange={(e) => updateExamCopy({ description: e.target.value })}
           />
         </label>
       </div>
@@ -88,15 +110,18 @@ const validarGuardar = () => {
           type="number"
           className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
           placeholder="Ingrese la duracion en minutos"
-          value={exam.duration }
-          onChange={(e) => updateExam(exam.id, { duration: Math.max(0, Number(e.target.value)) })}
+          value={examCopy.duration}
+          onChange={(e) => updateExamCopy({ duration: Math.max(0, Number(e.target.value)) })}
         />
+        <Hint show={showErrors && (!examCopy.duration || examCopy.duration === 0)}
+            message="La duración del examen no puede estar vacía." type="error"
+            />
       </label>
       <label className="flex items-center gap-2 mt-4">
           <input
             type="checkbox"
-            checked={exam.withCamera ?? false}
-            onChange={(e) => updateExam(exam.id, { withCamera: e.target.checked })}
+            checked={examCopy.withCamera ?? false}
+            onChange={(e) => updateExamCopy({ withCamera: e.target.checked })}
           />
           <span className="text-white text-sm font-medium">
           Requiere cámara para rendir
@@ -118,14 +143,13 @@ const validarGuardar = () => {
              shadow-sm transition duration-200
              hover:bg-indigo-500 hover:shadow-md 
              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
-           onClick={() => {if (validarGuardar()) {
-            router.push(`/profesores`);
-          }}}
+           onClick={handleSave}
         >
           Guardar
         </button>
       </div>
-      {exam.questions.map((q, index) => (
+
+      {examCopy.questions.map((q, index) => (
         <label className="block mt-4" key={index}>
           Pregunta {index + 1}
           <Card key={index}>
@@ -139,8 +163,8 @@ const validarGuardar = () => {
                 className="bi bi-trash3-fill"
                 viewBox="0 0 16 16"
                 onClick={() => {
-                  updateExam(exam.id, {
-                    questions: exam.questions.filter((_, i) => i !== index),
+                  updateExamCopy({
+                    questions: examCopy.questions.filter((_, i) => i !== index),
                   });
                 }}
               >
