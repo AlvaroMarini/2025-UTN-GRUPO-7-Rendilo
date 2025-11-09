@@ -1,4 +1,5 @@
 ## 📘 Rendilo – Plataforma de Exámenes Online.
+## Screenshot
 <img width="1550" height="929" alt="Captura de pantalla (495)" src="https://github.com/user-attachments/assets/3a35660e-922f-4703-8b6a-f2a3848cda9b" />
 
 ## 🚀 Descripción
@@ -25,13 +26,14 @@ Cuenta con dos dashboards principales:
 -Zustand
   para manejo de estado global y persistencia en localStorage
 
-⚙️ Instalación Local
+## ⚙️ Instalación Local
 1. Clonar el repo
 ```bash
 git clone https://github.com/AlvaroMarini/2025-UTN-GRUPO-7-Rendilo.git
 ```
+```bash
 cd rendilo
-
+```
 3. Instalar dependencias
 ```bash
 npm install
