@@ -99,7 +99,7 @@ export default function TakeExam() {
 
   const start = async () => {
     const init = (exam?.questions || []).map((q: any) => {
-      if (q.type === "choice") return [];
+      if (q.type === "choice") return -1;
       if (q.type === "tof") return null;
       return "";
     });
@@ -160,52 +160,6 @@ export default function TakeExam() {
       setCameraReady(false);
     }
   }, [camOn]);
-
-useEffect(() => {
-  if (!exam.withCamera || submitted) return;
-
-  const handleDeviceChange = async () => {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasCam = devices.some(d => d.kind === "videoinput");
-      if (hasCam && !camOn) {
-        setIgnoreFocus(true);
-        await startCamera({ deviceId: preferredDeviceId });
-        setTimeout(() => setIgnoreFocus(false), 2000);
-      }
-    } catch (e) {
-      console.warn("devicechange check error:", e);
-    }
-  };
-
-  navigator.mediaDevices.addEventListener("devicechange", handleDeviceChange);
-  return () => navigator.mediaDevices.removeEventListener("devicechange", handleDeviceChange);
-}, [camOn, exam.withCamera, preferredDeviceId, submitted]);
-
-
-useEffect(() => {
-  if (!exam.withCamera || submitted || camOn) return;
-
-  let tries = 0;
-  const interval = setInterval(async () => {
-    tries += 1;
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasCam = devices.some(d => d.kind === "videoinput");
-      if (hasCam) {
-        setIgnoreFocus(true);
-        await startCamera({ deviceId: preferredDeviceId });
-        setTimeout(() => setIgnoreFocus(false), 2000);
-        clearInterval(interval);
-      }
-    } catch (e) {
-      
-    }
-    if (tries >= 15) clearInterval(interval); // corta después de ~30 segundos
-  }, 2000);
-
-  return () => clearInterval(interval);
-}, [camOn, exam.withCamera, preferredDeviceId, submitted]);
 
 
   useEffect(() => {
@@ -349,30 +303,18 @@ useEffect(() => {
                   </p>
 
                   {q.type === "choice" &&
-                    q.options.map((opt, j) => {
-                      const selected = Array.isArray(answers[currentQuestionIndex])
-                        ? answers[currentQuestionIndex]
-                        : [];
-                      const isChecked = selected.includes(j);
-
-                      const toggleOption = () => {
-                        const updated = isChecked
-                          ? selected.filter((x) => x !== j)
-                          : [...selected, j];
-                        handleChange(currentQuestionIndex, updated);
-                      };
-
-                      return (
-                        <label key={j} className="flex items-center gap-2 mb-1">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={toggleOption}
-                          />
-                          <span className="text-sm sm:text-base">{opt.text}</span>
-                        </label>
-                      );
-                    })}
+                    q.options.map((opt, j) => (
+                      <label key={j} className="flex items-center gap-2 mb-1">
+                        <input
+                          type="radio"
+                          name={`q${currentQuestionIndex}`}
+                          value={j}
+                          checked={answers[currentQuestionIndex] === j}
+                          onChange={() => handleChange(currentQuestionIndex, j)}
+                        />
+                        <span className="text-sm sm:text-base">{opt.text}</span>
+                      </label>
+                    ))}
 
                   {q.type === "tof" && (
                     <div className="flex flex-col sm:flex-row gap-2">
@@ -491,7 +433,7 @@ useEffect(() => {
             </div>
 
             <div className="flex justify-between mt-6">
-            {currentIndex - 1 >= 0 && <button
+              {currentIndex - 1 >= 0 && <button
                 className="btn-primary px-4 py-2"
                 onClick={anteriorPregunta}
               >
