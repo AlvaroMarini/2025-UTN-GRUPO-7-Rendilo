@@ -9,7 +9,7 @@ type HintProps = {
 export default function Hint({ show = false, message, type = "info" }: HintProps) {
   if (!show) return null;
 
-  const color = type === "error" ? "text-red-400" : "text-zinc-400";
+  const color = type === "error" ? "text-black" : "text-zinc-400";
   const icon = type === "error" ? "⚠️" : "ℹ️";
 
   return (
