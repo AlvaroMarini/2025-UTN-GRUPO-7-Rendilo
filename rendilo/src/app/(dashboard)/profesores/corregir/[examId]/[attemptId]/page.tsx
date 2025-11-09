@@ -8,7 +8,7 @@ import RequireRole from "@/components/requireRole";
 export default function CorregirIntentoPage() {
   const { examId, attemptId } = useParams<{ examId: string; attemptId: string }>();
   const router = useRouter();
-  const { exams, reviewOpenAnswer } = useExamStore();
+  const { exams, reviewManualAnswer } = useExamStore();
 
   const exam = useMemo(() => exams.find(e => e.id === Number(examId)), [exams, examId]);
   if (!exam) return <div className="p-4">Examen no encontrado.</div>;
@@ -19,11 +19,11 @@ export default function CorregirIntentoPage() {
   const questions = exam.questions || [];
   const answers = attempt.answers || [];
 
-  const openIdxs = useMemo(() => questions.map((q:any, i:number) => q.type === "open" ? i : -1).filter((i:number)=> i>=0), [questions]);
+  const manualIdxs = useMemo(() => questions.map((q:any, i:number) => (q.type === "open" || q.type === "code") ? i : -1).filter((i:number)=> i>=0), [questions]);
   // draft de corrección local (no toca el store hasta guardar)
   const [draftMarks, setDraftMarks] = useState<Record<number, boolean>>(() => ({ ...(attempt.manualMarks ?? {}) }));
 
-  const allReviewed = openIdxs.length === 0 || openIdxs.every(idx => draftMarks[idx] !== undefined);
+  const allReviewed = manualIdxs.length === 0 || manualIdxs.every(idx => draftMarks[idx] !== undefined);
 
   function setMark(idx: number, value: boolean) {
     setDraftMarks(prev => ({ ...prev, [idx]: value }));
@@ -31,12 +31,13 @@ export default function CorregirIntentoPage() {
 
   async function onSave() {
     // aplicar todos los cambios locales al store
-    for (const idx of openIdxs) {
+    for (const idx of manualIdxs) {
       const value = draftMarks[idx];
       if (value !== undefined && exam && attempt) {
-        reviewOpenAnswer(exam.id, attempt.id, idx, value);
+        reviewManualAnswer(exam.id, attempt.id, idx, value);
       }
     }
+    await new Promise(r => setTimeout(r, 50));
     router.push("/profesores");
   }
   
@@ -84,19 +85,108 @@ export default function CorregirIntentoPage() {
             <div className="font-medium mb-2">{i + 1}. {q.examInstructions}</div>
 
             {q.type === "choice" && (
-              <div className="text-sm">
-                Opción marcada: <strong>{typeof answers[i] === "number" ? answers[i] : "-"}</strong>
-                {typeof answers[i] === "number" && q.options?.[answers[i]] && (
-                  <span className="ml-2 opacity-80">({toText(q.options?.[answers[i]]?.text)})</span>
+              <div className="text-sm space-y-2">
+                <div className="font-semibold mb-1">Respuestas seleccionadas por el alumno:</div>
+
+                {/* Si el alumno respondió varias */}
+                {Array.isArray(answers[i]) ? (
+                  <ul className="list-disc ml-5">
+                    {answers[i].map((ansIdx: number) => (
+                      <li key={ansIdx}>
+                        {q.options?.[ansIdx]?.text || `Opción ${ansIdx}`}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>{q.options?.[answers[i]]?.text || "—"}</p>
                 )}
-                <div className="text-xs opacity-70 mt-2">* Se corrige automáticamente.</div>
+
+                <div className="font-semibold mt-2">Respuestas correctas del profesor:</div>
+                <ul className="list-disc ml-5 text-green-400">
+                  {q.options
+                    ?.map((opt: any, idx: number) => (opt.isCorrect ? { ...opt, idx } : null))
+                    .filter(Boolean)
+                    .map((opt: any) => (
+                      <li key={opt.idx}>{opt.text}</li>
+                    ))}
+                </ul>
+
+                {/* Evaluación automática */}
+                {(() => {
+                  const correctIndexes =
+                    q.options
+                      ?.map((opt: any, idx: number) => (opt.isCorrect ? idx : null))
+                      .filter((idx: number | null) => idx !== null) ?? [];
+
+                  const studentAnswers = Array.isArray(answers[i])
+                    ? answers[i]
+                    : typeof answers[i] === "number"
+                    ? [answers[i]]
+                    : [];
+
+                  const allMatch =
+                    correctIndexes.length === studentAnswers.length &&
+                    correctIndexes.every((ci:number) => studentAnswers.includes(ci));
+
+                  return (
+                    <div
+                      className={`mt-3 p-2 rounded ${
+                        allMatch ? "bg-green-900/60 text-green-200" : "bg-red-900/60 text-red-200"
+                      }`}
+                    >
+                      {allMatch
+                        ? "Respuesta correcta"
+                        : "Respuesta incorrecta"}
+                    </div>
+                  );
+                })()}
+
+                <div className="text-xs opacity-70 mt-1">* Se corrige automáticamente.</div>
               </div>
             )}
+
 
             {q.type === "tof" && (
               <div className="text-sm">
                 Respuesta marcada: <strong>{answers[i] === true ? "Verdadero" : answers[i] === false ? "Falso" : "-"}</strong>
                 <div className="text-xs opacity-70 mt-2">* Se corrige automáticamente.</div>
+              </div>
+            )}
+
+            {q.type === "code" && (
+              <div className="space-y-3">
+                <div className="text-sm opacity-80">Código enviado:</div>
+                <div className="rounded border p-3 bg-surface whitespace-pre-wrap text-sm font-mono">
+                  {answers[i]?.code || answers[i]?.output || "Sin respuesta"}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    className={
+                      "rounded-full px-3 py-1 border " +
+                      (draftMarks[i] === true ? "bg-green-900 text-white" : "")
+                    }
+                    onClick={() => setMark(i, true)}
+                  >
+                    Correcto
+                  </button>
+                  <button
+                    className={
+                      "rounded-full px-3 py-1 border " +
+                      (draftMarks[i] === false ? "bg-red-900 text-white" : "")
+                    }
+                    onClick={() => setMark(i, false)}
+                  >
+                    Incorrecto
+                  </button>
+                  <span className="text-sm opacity-80">
+                    Estado:{" "}
+                    {draftMarks[i] === undefined
+                      ? "Sin revisar"
+                      : draftMarks[i]
+                      ? "Marcado como correcto"
+                      : "Marcado como incorrecto"}
+                  </span>
+                </div>
               </div>
             )}
 

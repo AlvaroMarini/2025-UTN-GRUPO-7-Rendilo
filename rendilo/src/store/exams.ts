@@ -32,7 +32,7 @@ type State = {
   addExam: (title: string) => void;
   updateExam: (id: number, patch: Partial<Exam>) => void;
   submitAttempt: (id: number, studentId: string, answers: any[]) => void;
-  reviewOpenAnswer: (examId: number, attemptId: number, questionIndex: number, isCorrect: boolean) => void;
+  reviewManualAnswer: (examId: number, attemptId: number, questionIndex: number, isCorrect: boolean) => void;
   deleteExam: (id: number) => void;
   
 };
@@ -78,9 +78,24 @@ export const useExamStore = create<State>()(
         let autoCorrect = 0;
         const qs = exam.questions || [];
         qs.forEach((q, i) => {
+          const a = answers[i]; 
           if (q.type === "choice") {
-            const ai = answers[i];
-            if (ai !== undefined && q.options?.[ai]?.isCorrect) autoCorrect++;
+            // indices de las respuestas correctas
+            const correctIndexes =
+              q.options
+                ?.map((opt, idx) => (opt.isCorrect ? idx : null))
+                .filter((idx): idx is number => idx !== null) ?? [];
+
+            if (Array.isArray(a)) {
+              // el alumno marcó varias
+              const allMatch =
+                correctIndexes.length === a.length &&
+                correctIndexes.every((ci) => a.includes(ci));
+              if (allMatch) autoCorrect++;
+            } else if (typeof a === "number") {
+              // el alumno marcó una sola
+              if (correctIndexes.includes(a)) autoCorrect++;
+            }
           }
           if (q.type === "tof") {
             if (answers[i] === q.tof) autoCorrect++;
@@ -88,8 +103,8 @@ export const useExamStore = create<State>()(
         });
         // Crear intento
         const attemptId = Date.now();
-        const openCount = qs.filter(q => q.type === "open").length;
-        const completed = openCount === 0; // si no hay abiertas, ya está completo
+        const manualCount = qs.filter(q => q.type === "open" || q.type === "code").length;
+        const completed = manualCount === 0; // si no hay abiertas, ya está completo
         const finalScore = completed ? autoCorrect : null;
         set((s) => ({
           exams: s.exams.map((e) => e.id === id
@@ -113,18 +128,27 @@ export const useExamStore = create<State>()(
       },
 
 
-      reviewOpenAnswer: (examId, attemptId, questionIndex, isCorrect) => {
-          set((s) => ({
+      reviewManualAnswer: (examId, attemptId, questionIndex, isCorrect) => {
+        set((s) => ({
           exams: s.exams.map((e) => {
             if (e.id !== examId) return e;
+
             const attempts = (e.attempts ?? []).map((a) => {
               if (a.id !== attemptId) return a;
+
               const manualMarks = { ...(a.manualMarks ?? {}), [questionIndex]: !!isCorrect };
-              // ¿quedan abiertas sin corregir?
-              const openIdxs = (e.questions || []).map((q, i) => q.type === "open" ? i : -1).filter(i => i >= 0);
-              const allReviewed = openIdxs.length === 0 || openIdxs.every((idx) => manualMarks[idx] !== undefined);
+
+              // ahora incluye también las preguntas tipo "code"
+              const manualIdxs = (e.questions || [])
+                .map((q, i) => (q.type === "open" || q.type === "code") ? i : -1)
+                .filter(i => i >= 0);
+
+              const allReviewed =
+                manualIdxs.length === 0 || manualIdxs.every((idx) => manualMarks[idx] !== undefined);
+
               const manualCorrect = Object.values(manualMarks).filter(Boolean).length;
-              const final = allReviewed ? (a.autoScore ?? 0) + manualCorrect : null;
+              const final = allReviewed ? (a.autoScore ?? 0) + manualCorrect : a.finalScore ?? null;
+
               return {
                 ...a,
                 manualMarks,
@@ -132,19 +156,17 @@ export const useExamStore = create<State>()(
                 completed: allReviewed,
               };
             });
-          // Si el último intento quedó completo, reflejar nota del examen
-          const last = attempts[attempts.length - 1];
-          return {
-            ...e,
-            attempts,
-            lastScore: last && last.completed ? last.finalScore : e.lastScore ?? null,
-            needsReview: last ? !last.completed : e.needsReview,
-          };
-        })
-      }));
-},
 
-
+            const last = attempts[attempts.length - 1];
+            return {
+              ...e,
+              attempts,
+              lastScore: last && last.completed ? last.finalScore : e.lastScore ?? null,
+              needsReview: last ? !last.completed : e.needsReview,
+            };
+          }),
+        }));
+      },
 
       deleteExam: (id: number) =>
         set((s) => ({
