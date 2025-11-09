@@ -5,7 +5,6 @@ import { use, useEffect, useState } from "react";
 import { useExamStore } from "@/store/exams";
 import RequireRole from "@/components/requireRole";
 
-import CameraNoticeModal from "@/components/ui/CameraNoticeModal";
 import { useCamera } from "@/hook/useCamera";
 import { useCameraStore } from "@/store/camera";
 
@@ -305,13 +304,13 @@ const { preferredDeviceId } = useCameraStore();
 {/* Botón siguiente / finalizar */}
   <div className="flex justify-between mt-6">
     {currentIndex - 1 >= 0 && <button
-                className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+                className="btn-primary px-4 py-2"
                 onClick={anteriorPregunta}
               >
               Anterior
               </button>}
     <button
-    className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base hover:bg-green-800 cursor-pointer"
+    className="btn-primary px-4 py-2"
     onClick={siguientePregunta}
     >
     {currentIndex + 1 === exam.questions.length ? "Finalizar" : "Siguiente"}

@@ -8,36 +8,31 @@ export default function NavTabs() {
   const router = useRouter();
   const { role, logout } = useAuth();
 
-  const linkCls = (href: string) =>
-    `rounded-full px-3 py-1.5 border transition ${
-      pathname?.startsWith(href)
-        ? "bg-indigo-600 text-white border-indigo-600 shadow"
-        : "hover:bg-zinc-50"
-    }`;
+
 
   return (
     <nav className="flex items-center gap-2 text-sm">
       {!role && (
-        <Link href="/login" className={linkCls("/login")}>
+        <Link href="/login" className='btn-primary py-2 px-4'>
           Iniciar sesión
         </Link>
       )}
 
       {role === "profesor" && (
-        <Link href="/profesores" className={linkCls("/profesores")}>
+        <Link href="/profesores" className='btn-primary py-2 px-4'>
           Profesores
         </Link>
       )}
 
       {role === "alumno" && (
-        <Link href="/alumnos" className={linkCls("/alumnos")}>
+        <Link href="/alumnos" className='btn-primary py-2 px-4'>
           Alumnos
         </Link>
       )}
 
       {role && (
         <button
-          className="rounded-full px-3 py-1.5 border hover:bg-zinc-400 cursor-pointer"
+          className="btn-primary py-2 px-4"
           onClick={() => {
             logout();
             router.replace("/login");

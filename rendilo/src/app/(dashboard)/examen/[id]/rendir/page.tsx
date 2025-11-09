@@ -209,7 +209,7 @@ export default function TakeExam() {
     <>
       {inicio ? (
         <RequireRole role="alumno">
-          <div className="space-y-3 py-3">
+          <div className="mt-5 py-3">
             <input
               className="border rounded px-3 py-2 w-full max-w-sm"
               placeholder="Tu ID o nombre (obligatorio)"
@@ -218,7 +218,7 @@ export default function TakeExam() {
             />
             <button
               onClick={start}
-              className="px-6 py-1 bg-blue-700 rounded-lg hover:bg-blue-900"
+              className="btn-primary px-6 py-2 ml-2"
             >
               Rendir
             </button>
@@ -351,7 +351,7 @@ export default function TakeExam() {
                   {q.type === "code" && (
                     <div className="mt-4 space-y-3">
                       <textarea
-                        className="w-full border p-2 rounded font-mono bg-gray-900 text-green-200 text-sm sm:text-base"
+                        className="w-full border p-2 rounded font-mono bg-surface text-sm sm:text-base"
                         rows={8}
                         placeholder="Escribí tu código aquí..."
                         value={answers[currentQuestionIndex]?.code || ""}
@@ -364,7 +364,7 @@ export default function TakeExam() {
                       />
 
                       <select
-                        className="border rounded p-2 bg-gray-800 text-white"
+                        className="border rounded p-2 bg-surface text-white"
                         value={answers[currentQuestionIndex]?.language_id || 50}
                         onChange={(e) =>
                           handleChange(currentQuestionIndex, {
@@ -381,7 +381,7 @@ export default function TakeExam() {
                       </select>
 
                       <textarea
-                        className="w-full border p-2 rounded font-mono bg-gray-950 text-gray-100"
+                        className="w-full border p-2 rounded font-mono bg-surface "
                         rows={3}
                         placeholder="Entrada (stdin)... ej: valores para scanf o input"
                         value={answers[currentQuestionIndex]?.stdin || ""}
@@ -394,7 +394,7 @@ export default function TakeExam() {
                       />
 
                       <button
-                        className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        className="btn-primary px-4 py-2 "
                         onClick={async () => {
                           const current = answers[currentQuestionIndex] || {};
                           const res = await fetch("/api/compile", {
@@ -421,7 +421,7 @@ export default function TakeExam() {
                         Compilar y Ejecutar
                       </button>
 
-                      <div className="bg-black text-green-400 font-mono p-3 rounded h-40 overflow-auto">
+                      <div className="bg-surface font-mono p-3 rounded h-40 overflow-auto">
                         <pre>
                           {answers[currentQuestionIndex]?.output || "Salida aparecerá aquí..."}
                         </pre>
@@ -433,14 +433,19 @@ export default function TakeExam() {
             </div>
 
             <div className="flex justify-between mt-6">
+<<<<<<< HEAD
               {currentIndex - 1 >= 0 && <button
                 className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+=======
+            {currentIndex - 1 >= 0 && <button
+                className="btn-primary px-4 py-2"
+>>>>>>> 364b668f0d3e26b259575b8625b7b1a8eda67ec0
                 onClick={anteriorPregunta}
               >
                 Anterior
               </button>}
               <button
-                className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
+                className="btn-primary px-4 py-2"
                 onClick={siguientePregunta}
               >
                 {currentIndex + 1 === exam.questions.length ? "Finalizar" : "Siguiente"}

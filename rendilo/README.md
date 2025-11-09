@@ -1,14 +1,15 @@
-📘 Rendilo – Plataforma de Exámenes (Next.js)
+#📘 Rendilo – Plataforma de Exámenes Online(Next.js)
 🚀 Descripción
 
-Rendilo es una webapp educativa para la gestión y rendición de exámenes.
+Esta plataforma permite a instituciones educativas gestionar exámenes en línea de forma segura y eficiente. Los profesores pueden crear, editar y publicar exámenes personalizados, mientras que los alumnos pueden rendirlos desde cualquier dispositivo con conexión a internet.
+
 Cuenta con dos dashboards principales:
 
 👨‍🏫 Profesores: pueden crear, editar y administrar exámenes.
 
 🎓 Alumnos: pueden rendir exámenes y visualizar sus notas.
 
-Este proyecto está desarrollado en:
+## Tecnologias utilizadas en este proyecto:
 
 -Next.js 15
   con App Router
@@ -21,9 +22,9 @@ Este proyecto está desarrollado en:
 -Zustand
   para manejo de estado global y persistencia en localStorage
 
-⚙️ Instalación y uso
+⚙️ Instalación Local
 1. Clonar el repo
-git clone <url-del-repo>
+git clone https://github.com/AlvaroMarini/2025-UTN-GRUPO-7-Rendilo.git
 cd rendilo
 
 2. Instalar dependencias

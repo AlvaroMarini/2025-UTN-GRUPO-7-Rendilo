@@ -25,9 +25,9 @@ export default function AlumnosPage() {
                   })()}/10
               </span>
             ) : ex.attempts && ex.attempts.length > 0 ? (
-              <span className="inline-flex rounded-full border px-3 py-1">Enviado · pendiente de corrección</span>
+              <span className="inline-flex bg-surface rounded-full border px-3 py-1">Enviado · pendiente de corrección</span>
             ) : (
-              <Link href={`/examen/${ex.id}/rendir`} className="inline-flex rounded-full border px-3 py-1">Rendir</Link>
+              <Link href={`/examen/${ex.id}/rendir`} className="btn-primary px-3 py-1">Rendir</Link>
             )}
           </div>
         </Card>
