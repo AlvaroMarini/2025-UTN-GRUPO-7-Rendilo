@@ -11,6 +11,7 @@ import MultiFaceModal from "@/components/ui/MultiFaceModal";
 import { useExamSecurity } from "@/hook/useExamSecurity";
 import AutoSubmitFocusModal from "@/components/ui/AutoSubmitFocusModal";
 import ExitExamModal from "@/components/ui/ExitExamModal";
+import ModaInterrupcion from "@/components/ui/ModaInterrupcion";
 
 export default function TakeExam() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +37,8 @@ export default function TakeExam() {
   const [showMultiFaceWarning, setShowMultiFaceWarning] = useState(false);
   const [ignoreFocus, setIgnoreFocus] = useState(false);
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
+  //Variable de modal
+  const [interrupcion, setInterrupcion] = useState(false);
 
   const { videoRef, camOn, error, startCamera, stopCamera, faceCount } = useCamera();
   const { preferredDeviceId } = useCameraStore();
@@ -69,6 +72,7 @@ export default function TakeExam() {
     finishAndSubmit,
     ignoreFocus
   });
+
 
   const mezclarPreguntas = () => {
     const order = exam.questions.map((_, i) => i);
@@ -157,6 +161,7 @@ export default function TakeExam() {
     }
   }, [camOn]);
 
+
   useEffect(() => {
     if (!exam.withCamera || submitted || !cameraReady) return;
 
@@ -227,10 +232,9 @@ export default function TakeExam() {
                 className={`
                   fixed z-40 bg-black border border-white/10 rounded-xl overflow-hidden shadow-2xl
                   transition-all duration-300
-                  ${
-                    screenWidth && screenWidth < 640
-                      ? "right-3 top-24 w-[180px] h-[135px]"
-                      : "left-4 bottom-4 w-[220px] h-[160px]"
+                  ${screenWidth && screenWidth < 640
+                    ? "right-3 top-24 w-[180px] h-[135px]"
+                    : "left-4 bottom-4 w-[220px] h-[160px]"
                   }
                 `}
               >
@@ -275,7 +279,7 @@ export default function TakeExam() {
               visible={showCamNotice}
               onAccept={async () => {
                 setShowCamNotice(false);
-                document.documentElement.requestFullscreen().catch(() => {});
+                document.documentElement.requestFullscreen().catch(() => { });
                 await startCamera({ deviceId: preferredDeviceId });
               }}
               onCancel={() => setShowCamNotice(false)}
@@ -289,6 +293,7 @@ export default function TakeExam() {
               onCancel={cancelExit}
             />
             <AutoSubmitFocusModal visible={showAutoSubmitFocusModal} />
+            <ModaInterrupcion visible={showAutoSubmitFocusModal} onAccept={cancelExit} />
 
             <div className="space-y-6">
               {q && (
@@ -428,11 +433,11 @@ export default function TakeExam() {
             </div>
 
             <div className="flex justify-between mt-6">
-            {currentIndex - 1 >= 0 && <button
+              {currentIndex - 1 >= 0 && <button
                 className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
                 onClick={anteriorPregunta}
               >
-              Anterior
+                Anterior
               </button>}
               <button
                 className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"

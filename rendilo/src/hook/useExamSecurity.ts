@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 
 interface ExamSecurityOptions {
   submitted: boolean;
-  startProtection: boolean; 
+  startProtection: boolean;
   finishAndSubmit: () => void;
-  ignoreFocus?: boolean; 
+  ignoreFocus?: boolean;
 }
 
 export function useExamSecurity({
@@ -15,32 +15,34 @@ export function useExamSecurity({
   ignoreFocus = false,
 }: ExamSecurityOptions) {
   const [showExitModal, setShowExitModal] = useState(false);
-  const [showAutoSubmitFocusModal, setShowAutoSubmitFocusModal] = useState(false); 
+  const [showAutoSubmitFocusModal, setShowAutoSubmitFocusModal] = useState(false);
 
   // Detectar pérdida de foco (cambio de pestaña, minimizar, etc.)
- useEffect(() => {
-  if (submitted || !startProtection || ignoreFocus) return;
+  useEffect(() => {
+    if (submitted || !startProtection || ignoreFocus) return;
 
-  function handleFocusLoss() {
-    console.warn("⚠️ Examen finalizado por pérdida de foco.");
-    setShowAutoSubmitFocusModal(true);
-    finishAndSubmit(); 
-  }
+    function handleFocusLoss() {
+      console.warn("⚠️ Examen finalizado por pérdida de foco.");
+      setShowAutoSubmitFocusModal(true);
+      ignoreFocus = true;
+      setTimeout(() => finishAndSubmit(), 4000);
 
-  function handleVisibilityChange() {
-    if (document.hidden) handleFocusLoss();
-  }
+    }
 
-  window.addEventListener("blur", handleFocusLoss);
-  document.addEventListener("visibilitychange", handleVisibilityChange);
+    function handleVisibilityChange() {
+      if (document.hidden) handleFocusLoss();
+    }
 
-  return () => {
-    window.removeEventListener("blur", handleFocusLoss);
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-  };
-}, [submitted, startProtection, ignoreFocus, finishAndSubmit]);
+    window.addEventListener("blur", handleFocusLoss);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
-  
+    return () => {
+      window.removeEventListener("blur", handleFocusLoss);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [submitted, startProtection, ignoreFocus, finishAndSubmit]);
+
+
 
   // Bloquear teclas (Escape, Alt+Tab, Ctrl+Tab, Cmd+Tab, F11)
   useEffect(() => {
@@ -80,7 +82,7 @@ export function useExamSecurity({
 
 
   function confirmExit() {
-    document.exitFullscreen().catch(() => {});
+    document.exitFullscreen().catch(() => { });
     finishAndSubmit();
     setShowExitModal(false);
   }
@@ -88,7 +90,7 @@ export function useExamSecurity({
   function cancelExit() {
     setShowExitModal(false);
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => { });
     }
   }
 
@@ -96,6 +98,6 @@ export function useExamSecurity({
     showExitModal,
     confirmExit,
     cancelExit,
-    showAutoSubmitFocusModal, 
+    showAutoSubmitFocusModal
   };
 }
