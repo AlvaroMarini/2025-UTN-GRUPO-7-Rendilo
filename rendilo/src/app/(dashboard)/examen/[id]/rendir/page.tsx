@@ -99,7 +99,7 @@ export default function TakeExam() {
 
   const start = async () => {
     const init = (exam?.questions || []).map((q: any) => {
-      if (q.type === "choice") return -1;
+      if (q.type === "choice") return [];
       if (q.type === "tof") return null;
       return "";
     });
@@ -303,18 +303,30 @@ export default function TakeExam() {
                   </p>
 
                   {q.type === "choice" &&
-                    q.options.map((opt, j) => (
-                      <label key={j} className="flex items-center gap-2 mb-1">
-                        <input
-                          type="radio"
-                          name={`q${currentQuestionIndex}`}
-                          value={j}
-                          checked={answers[currentQuestionIndex] === j}
-                          onChange={() => handleChange(currentQuestionIndex, j)}
-                        />
-                        <span className="text-sm sm:text-base">{opt.text}</span>
-                      </label>
-                    ))}
+                    q.options.map((opt, j) => {
+                      const selected = Array.isArray(answers[currentQuestionIndex])
+                        ? answers[currentQuestionIndex]
+                        : [];
+                      const isChecked = selected.includes(j);
+
+                      const toggleOption = () => {
+                        const updated = isChecked
+                          ? selected.filter((x) => x !== j)
+                          : [...selected, j];
+                        handleChange(currentQuestionIndex, updated);
+                      };
+
+                      return (
+                        <label key={j} className="flex items-center gap-2 mb-1">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={toggleOption}
+                          />
+                          <span className="text-sm sm:text-base">{opt.text}</span>
+                        </label>
+                      );
+                    })}
 
                   {q.type === "tof" && (
                     <div className="flex flex-col sm:flex-row gap-2">
@@ -433,13 +445,8 @@ export default function TakeExam() {
             </div>
 
             <div className="flex justify-between mt-6">
-<<<<<<< HEAD
-              {currentIndex - 1 >= 0 && <button
-                className="rounded-full border px-4 py-2 bg-green-600 text-white text-sm sm:text-base"
-=======
             {currentIndex - 1 >= 0 && <button
                 className="btn-primary px-4 py-2"
->>>>>>> 364b668f0d3e26b259575b8625b7b1a8eda67ec0
                 onClick={anteriorPregunta}
               >
                 Anterior
