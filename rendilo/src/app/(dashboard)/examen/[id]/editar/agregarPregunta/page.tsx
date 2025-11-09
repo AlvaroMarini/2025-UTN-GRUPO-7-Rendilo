@@ -4,6 +4,9 @@ import { Question, Option, useExamStore } from "@/store/exams";
 import { Card, Pill } from "@/components/ui";
 import { useState } from "react";
 import RequireRole from "@/components/requireRole";
+import Hint from "@/components/alerts/Hint";
+import { showWarning } from "@/store/alerts";
+
 
 export default function EditExam() {
   const { id } = useParams<{ id: string }>();
@@ -21,28 +24,33 @@ export default function EditExam() {
   const [opciones, setOpciones] = useState<Option[] | []>([]);
   const [nuevaOpcion, setNuevaOpcion] = useState("");
 
+  const [showErrors, setShowErrors] = useState(false);
+  
+    
+const consignaVacia = examInstructions.trim().length === 0;
+
   const addQuestion = () => {
     if (!exam) return;
-    if (!examInstructions.trim()) {
-      alert("Debes escribir una consigna");
-      return;
-    }
+    
+    setShowErrors(true);
+    if (consignaVacia) return;
+    setShowErrors(false);
 
     let newQuestion: Question;
 
     switch (opcion) {
       case "choice":
         if (opciones.length === 0) {
-          alert("Debes agregar al menos una opción");
+          showWarning("Debes agregar al menos una opción");
           return;
         }
 
         if (opciones.length < 2) {
-          alert("Debes agregar al menos dos opciones");
+          showWarning("Debes agregar al menos dos opciones");
           return;
         }
         if (opciones.map((op)=> op.isCorrect).every((isCorrect) => !isCorrect)) {
-          alert("Debes seleccionar al menos una opción correcta");
+          showWarning("Debes seleccionar al menos una opción correcta");
           return;
         }
         newQuestion = {
@@ -55,7 +63,7 @@ export default function EditExam() {
 
       case "tof":
         if (vof === null) {
-          alert("Debes seleccionar la respuesta correcta");
+          showWarning("Debes seleccionar la respuesta correcta");
           return;
         }
         newQuestion = {
@@ -83,7 +91,7 @@ export default function EditExam() {
         break;
 
       default:
-        alert("Debes seleccionar un tipo de pregunta");
+        showWarning("Debes seleccionar un tipo de pregunta");
         return;
     }
 
@@ -94,7 +102,7 @@ export default function EditExam() {
 
     // Limpiar el formulario
     setExamInstructions("");
-    setOpcion("");
+    setOpcion("open");
     setOpciones([]);
     setNuevaOpcion("");
     setVof(null);
@@ -128,6 +136,9 @@ export default function EditExam() {
             className="rounded-xl border border-gray-300 px-3 py-2 w-full text-white-900 focus:outline-none focus:ring-2 focus:ring-white-500"
             placeholder="Escribe la pregunta aquí"
           />
+          <Hint show={showErrors && consignaVacia}
+                message="La consigna no debe estar vacia " type="error"
+            />
         </label>
 
         <div>
@@ -169,7 +180,7 @@ export default function EditExam() {
                 className="btn-primary px-5 py-2"
                 onClick={() => {
                   if (opciones.find((op) => op.text === nuevaOpcion)?.text) {
-                    alert("La opción ya existe");
+                    showWarning("La opción ya existe");
                     return;
                   }
                   if (nuevaOpcion) {

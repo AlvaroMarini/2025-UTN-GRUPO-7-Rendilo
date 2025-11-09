@@ -161,6 +161,52 @@ export default function TakeExam() {
     }
   }, [camOn]);
 
+useEffect(() => {
+  if (!exam.withCamera || submitted) return;
+
+  const handleDeviceChange = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasCam = devices.some(d => d.kind === "videoinput");
+      if (hasCam && !camOn) {
+        setIgnoreFocus(true);
+        await startCamera({ deviceId: preferredDeviceId });
+        setTimeout(() => setIgnoreFocus(false), 2000);
+      }
+    } catch (e) {
+      console.warn("devicechange check error:", e);
+    }
+  };
+
+  navigator.mediaDevices.addEventListener("devicechange", handleDeviceChange);
+  return () => navigator.mediaDevices.removeEventListener("devicechange", handleDeviceChange);
+}, [camOn, exam.withCamera, preferredDeviceId, submitted]);
+
+
+useEffect(() => {
+  if (!exam.withCamera || submitted || camOn) return;
+
+  let tries = 0;
+  const interval = setInterval(async () => {
+    tries += 1;
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasCam = devices.some(d => d.kind === "videoinput");
+      if (hasCam) {
+        setIgnoreFocus(true);
+        await startCamera({ deviceId: preferredDeviceId });
+        setTimeout(() => setIgnoreFocus(false), 2000);
+        clearInterval(interval);
+      }
+    } catch (e) {
+      
+    }
+    if (tries >= 15) clearInterval(interval); // corta después de ~30 segundos
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [camOn, exam.withCamera, preferredDeviceId, submitted]);
+
 
   useEffect(() => {
     if (!exam.withCamera || submitted || !cameraReady) return;
