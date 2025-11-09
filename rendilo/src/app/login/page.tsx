@@ -14,18 +14,18 @@ export default function LoginPage() {
   return (
     <section className="max-w-md mx-auto space-y-6">
       <h1 className="text-2xl font-semibold">Ingresar</h1>
-      <p className="text-sm text-zinc-600">
+      <p className="text-sm text-primary">
         Accesos de demostración (sin base de datos):
       </p>
       <div className="grid gap-3">
         <button
-          className="rounded-xl border px-4 py-2 hover:bg-zinc-700"
+          className="btn-primary p-4 "
           onClick={() => handleLogin("profesor")}
         >
           Entrar como Profesor (demo)
         </button>
         <button
-          className="rounded-xl border px-4 py-2 hover:bg-zinc-700"
+          className="btn-primary p-4"
           onClick={() => handleLogin("alumno")}
         >
           Entrar como Alumno (demo)

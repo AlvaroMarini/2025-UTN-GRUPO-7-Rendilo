@@ -3,13 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --palette-black: #0B0A0D;
+  --palette-dark: #212340;
+  --palette-deep: #5A588C;
+  --palette-mid: #9A99BF;
+  --palette-light: #C0BFD9;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,4 +40,143 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.25s ease-out forwards;
+}
+
+/* Paleta de colores */
+:root {
+  --palette-black: #0B0A0D;
+  --palette-dark: #2d3062;
+  --palette-deep: #5A588C;
+  --palette-mid: #9A99BF;
+  --palette-light: #C0BFD9;
+}
+
+/* Fondo principal */
+.bg-primary {
+  background-color: var(--palette-dark);
+  color: #fff;
+}
+.bg-accent {
+  background-color: var(--palette-deep);
+  color: #fff;
+}
+.bg-surface {
+  background-color: var(--palette-light);
+  color: var(--palette-dark);
+}
+.bg-muted {
+  background-color: var(--palette-mid);
+  color: var(--palette-dark);
+}
+.bg-deep {
+  background-color: var(--palette-black);
+  color: var(--palette-light);
+}
+
+/* Texto */
+.text-primary {
+  color: var(--palette-dark);
+}
+.text-accent {
+  color: var(--palette-deep);
+}
+.text-surface {
+  color: var(--palette-light);
+}
+.text-muted {
+  color: var(--palette-mid);
+}
+.text-deep {
+  color: var(--palette-black);
+}
+
+/* Bordes */
+.border-primary {
+  border-color: var(--palette-dark) !important;
+}
+.border-accent {
+  border-color: var(--palette-deep) !important;
+}
+.border-surface {
+  border-color: var(--palette-light) !important;
+}
+.border-muted {
+  border-color: var(--palette-mid) !important;
+}
+.border-deep {
+  border-color: var(--palette-black) !important;
+}
+
+/* Botones */
+.btn-primary {
+  position: relative;
+  background: linear-gradient(135deg, #404ad0 0%, #484696 50%, #5b598f 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem; /* rounded-xl */
+  font-weight: 600;
+  overflow: hidden;
+  z-index: 0;
+  transition: background 1s ease, color 0.6s ease;
+}
+
+/* Borde degradado */
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px; /* grosor del borde */
+  background: linear-gradient(135deg, #404ad0, #5b598f);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  z-index: -1;
+  transition: background 1s ease; /* también animamos el borde */
+}
+
+/* Hover: gradiente más claro */
+.btn-primary:hover {
+  background: linear-gradient(135deg, #6a6ef0 0%, #7d7ac7 50%, #9b9ad8 100%);
+  color: #fff;
+}
+
+/* Borde aclara levemente también */
+.btn-primary:hover::before {
+  background: linear-gradient(135deg, #6a6ef0, #9b9ad8);
+}
+
+
+
+
+.btn-accent {
+  background-color: var(--palette-light);
+  color: var(--palette-dark);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(33,35,64,0.08);
+  border: none;
+  transition: background 0.2s;
+}
+.btn-accent:hover {
+  background-color: var(--palette-mid);
+}
+
+.btn-muted {
+  background-color: var(--palette-mid);
+  color: var(--palette-dark);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(33,35,64,0.08);
+  border: none;
+  transition: background 0.2s;
+}
+.btn-muted:hover {
+  background-color: var(--palette-light);
+}
+
+/* Degradé violeta: de oscuro a claro */
+.bg-violet-gradient {
+  background: linear-gradient(135deg, #404ad0 0%, #484696 50%, #5b598f 100%);
 }

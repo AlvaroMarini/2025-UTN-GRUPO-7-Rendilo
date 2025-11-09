@@ -107,13 +107,9 @@ export default function EditExam() {
     <>
      <RequireRole role="profesor">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-white">Agregar Pregunta</h1>
+        <h1 className="text-3xl font-bold text-dark">Agregar Pregunta</h1>
         <button
-          className="relative text-sm font-medium text-white transition
-               after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 
-               after:bg-blue-500 after:transition-all after:duration-300
-               hover:text-blue-400 hover:after:w-full
-               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
+          className="btn-primary px-5 py-2"
           onClick={() => router.push(`/examen/${id}/editar`)}
         >
           Volver
@@ -123,7 +119,7 @@ export default function EditExam() {
       <div className="my-6 space-y-4">
         {/* Campo Pregunta */}
         <label className="block">
-          <span className="block mb-1 text-white text-sm font-medium">
+          <span className="block mb-1 text-dark text-sm font-medium">
             Consigna
           </span>
           <input
@@ -136,7 +132,7 @@ export default function EditExam() {
 
         <div>
           <label className="block">
-            <span className="block mb-1 text-white text-sm font-medium">
+            <span className="block mb-1 text-dark text-sm font-medium">
               Selecciona una opción
             </span>
           </label>
@@ -153,10 +149,11 @@ export default function EditExam() {
           </select>
         </div>
       </div>
+      
       {opcion === "choice" && (
         <div>
           <label className="block">
-            <span className="block mb-1 text-white text-sm font-medium">
+            <span className="block mb-1 text-dark text-sm font-medium">
               Opción
             </span>
 
@@ -169,10 +166,7 @@ export default function EditExam() {
               />
               <button
                 type="button"
-                className="rounded-full border border-zinc-700 px-5 py-2 text-zinc-100 bg-indigo-600
-                shadow-sm transition duration-200
-                hover:bg-indigo-500 hover:shadow-md 
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70"
+                className="btn-primary px-5 py-2"
                 onClick={() => {
                   if (opciones.find((op) => op.text === nuevaOpcion)?.text) {
                     alert("La opción ya existe");
@@ -191,12 +185,12 @@ export default function EditExam() {
               </button>
             </div>
           </label>
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col gap-2">
           {opciones.map((op, index) => (
             <Card key={index}>
               <div className="flex items-center justify-between">
                 <Pill className="text-base text-white">{op.text}</Pill>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
                   <input
                     id="terms"
                     type="checkbox"
@@ -210,6 +204,7 @@ export default function EditExam() {
                       setOpciones(newOpciones);
                     }}
                   ></input>
+                  <span className='inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-red-500/10 hover:text-red-400 cursor-pointer'>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="17"
@@ -223,6 +218,7 @@ export default function EditExam() {
                   >
                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
                   </svg>
+                  </span>
                 </div>
               </div>
             </Card>
@@ -231,7 +227,7 @@ export default function EditExam() {
         </div>
       )}
       {opcion === "tof" && (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <label>Ingrese la respuesta correcta</label>
           <Card>
             <div className="flex items-center gap-3">
@@ -242,7 +238,7 @@ export default function EditExam() {
                 className="h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
                 onClick={() => setVof(true)}
               />
-              <label htmlFor="verdadero" className="text-white">
+              <label htmlFor="verdadero" className="text-dark">
                 Verdadero
               </label>
             </div>
@@ -257,7 +253,7 @@ export default function EditExam() {
                 className="h-5 w-5 border-gray-300 text-blue-600 focus:ring-blue-500"
                 onClick={() => setVof(false)}
               />
-              <label htmlFor="falso" className="text-white">
+              <label htmlFor="falso" className="text-dark">
                 Falso
               </label>
             </div>
@@ -266,10 +262,7 @@ export default function EditExam() {
       )}
       <div className="flex gap-2">
         <button 
-            className="rounded-full border border-zinc-700 px-5 py-2 text-zinc-100 bg-indigo-600
-              shadow-sm transition duration-200
-              hover:bg-indigo-500 hover:shadow-md 
-              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70" 
+            className="btn-primary px-5 py-2" 
              onClick={addQuestion}>
           Guardar
         </button>

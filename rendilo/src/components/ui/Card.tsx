@@ -24,9 +24,7 @@ export const Card = <T extends React.ElementType = "div">({
     return (
         <Component
             className={`
-        rounded-2xl border bg-white/80 p-4 shadow-sm transition
-        hover:shadow-md dark:border-zinc-200 dark:bg-zinc-900/80
-        focus:outline-none focus:ring-6 focus:ring-blue-500 
+        rounded-2xl border bg-white/80 p-4 shadow-sm dark:border-zinc-200 dark:bg-zinc-900/80
         ${cursorClass}
         ${className}
       `}

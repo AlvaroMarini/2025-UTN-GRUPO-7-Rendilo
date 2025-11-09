@@ -66,9 +66,9 @@ export default function CorregirIntentoPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="text-sm underline" onClick={() => router.push("/profesores")}>Volver</button>
+          <button className="text-primary text-sm underline" onClick={() => router.push("/profesores")}>Volver</button>
           <button
-            className="text-sm rounded-full border px-3 py-1 disabled:opacity-50"
+            className="btn-primary p-2 text-sm ml-2"
             onClick={onSave}
             disabled={!allReviewed}
             title={allReviewed ? "Guardar correcciones" : "Marca todas las abiertas primero"}
@@ -103,18 +103,18 @@ export default function CorregirIntentoPage() {
             {q.type === "open" && (
               <div className="space-y-3">
                 <div className="text-sm opacity-80">Respuesta del alumno:</div>
-                <div className="rounded border p-3 bg-zinc-900/30 whitespace-pre-wrap text-sm">
+                <div className="rounded border p-3 bg-surface whitespace-pre-wrap text-sm">
                   {toText(answers[i])}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    className={"rounded-full px-3 py-1 border " + (draftMarks[i] === true ? "bg-green-700 text-white" : "")}
+                    className={"rounded-full px-3 py-1 border " + (draftMarks[i] === true ? "bg-green-900 text-white" : "")}
                     onClick={() => setMark(i, true)}
                   >
                     Correcta
                   </button>
                   <button
-                    className={"rounded-full px-3 py-1 border " + (draftMarks[i] === false ? "bg-red-700 text-white" : "")}
+                    className={"rounded-full px-3 py-1 border " + (draftMarks[i] === false ? "bg-red-900 text-white" : "")}
                     onClick={() => setMark(i, false)}
                   >
                     Incorrecta
