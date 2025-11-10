@@ -72,7 +72,7 @@ const validarGuardar = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-dark">Editar examen</h1>
         <button
-          className="relative text-sm font-medium text-white transition
+          className="relative text-sm font-medium text-black transition
                after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 
                after:bg-blue-500 after:transition-all after:duration-300
                hover:text-blue-400 hover:after:w-full
