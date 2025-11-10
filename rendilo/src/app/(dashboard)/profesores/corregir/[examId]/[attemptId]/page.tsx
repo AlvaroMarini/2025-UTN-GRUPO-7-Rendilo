@@ -16,7 +16,11 @@ export default function CorregirIntentoPage() {
   const attempt = useMemo(() => (exam.attempts ?? []).find(a => a.id === Number(attemptId)), [exam, attemptId]);
   if (!attempt) return <div className="p-4">Intento no encontrado.</div>;
 
-  const questions = exam.questions || [];
+  const questions =
+    attempt.questionOrder && attempt.questionOrder.length > 0
+      ? attempt.questionOrder.map((i) => exam.questions[i])
+      : exam.questions;
+
   const answers = attempt.answers || [];
 
   const manualIdxs = useMemo(() => questions.map((q:any, i:number) => (q.type === "open" || q.type === "code") ? i : -1).filter((i:number)=> i>=0), [questions]);
@@ -30,17 +34,24 @@ export default function CorregirIntentoPage() {
   }
 
   async function onSave() {
-    // aplicar todos los cambios locales al store
+    if (!exam || !attempt) return;
+
+    console.log("💾 Guardando correcciones...", draftMarks);
+
     for (const idx of manualIdxs) {
       const value = draftMarks[idx];
-      if (value !== undefined && exam && attempt) {
+      if (value !== undefined) {
+        // ✅ Usamos el índice local dentro del intento, no el índice global del examen
         reviewManualAnswer(exam.id, attempt.id, idx, value);
       }
     }
-    await new Promise(r => setTimeout(r, 50));
+
+    await new Promise((r) => setTimeout(r, 100));
+
+    console.log("✅ Correcciones guardadas. Redirigiendo...");
     router.push("/profesores");
   }
-  
+
   function toText(v: any): string {
   if (v == null) return "";
   const t = typeof v;
@@ -82,7 +93,9 @@ export default function CorregirIntentoPage() {
       <div className="space-y-6">
         {questions.map((q:any, i:number) => (
           <div key={q.id} className="border rounded p-4">
-            <div className="font-medium mb-2">{i + 1}. {q.examInstructions}</div>
+            <div className="font-medium mb-2">{attempt.questionOrder ? `#${attempt.questionOrder[i] + 1}. ` : `${i + 1}. `}
+{q.examInstructions}
+</div>
 
             {q.type === "choice" && (
               <div className="text-sm space-y-2">
