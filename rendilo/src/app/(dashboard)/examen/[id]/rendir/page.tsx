@@ -13,6 +13,7 @@ import AutoSubmitFocusModal from "@/components/ui/AutoSubmitFocusModal";
 import ExitExamModal from "@/components/ui/ExitExamModal";
 import ModaInterrupcion from "@/components/ui/ModaInterrupcion";
 import type { Question, QuestionLimit } from "@/store/exams";
+import { showWarning } from "@/store/alerts";
 
 export default function TakeExam() {
   const { id } = useParams<{ id: string }>();
@@ -70,6 +71,7 @@ export default function TakeExam() {
     });
     submitAttempt(exam.id, studentId || "alumno", orderedAnswers, questionOrder);
     router.push("/alumnos");
+    showWarning("El examen fue enviado a revision por posible fraude")
     setMinutos(0);
   };
 
