@@ -18,10 +18,9 @@ export default function AlumnosPage() {
             {ex.lastScore != null ? (
               <span className="inline-flex rounded-full border px-3 py-1">
                 {(() => {
-                   const total = (ex.questions || []).length || 10;
-                   const raw = ((ex.lastScore ?? 0) / total) * 10;
-                   const s = Math.round(raw * 10) / 10; // redondeo a 1 decimal
-                   return Number.isInteger(s) ? s : s.toFixed(1);
+                  const score = Math.max(0, Math.min(10, ex.lastScore ?? 0));
+                  const s = Math.round(score * 10) / 10;
+                  return Number.isInteger(s) ? s : s.toFixed(1);
                   })()}/10
               </span>
             ) : ex.attempts && ex.attempts.length > 0 ? (
