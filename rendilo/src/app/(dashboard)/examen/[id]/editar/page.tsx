@@ -131,6 +131,90 @@ const validarGuardar = () => {
           Requiere cámara para rendir
           </span>
       </label>
+
+      {/* Límite de preguntas aleatorias para los alumnos */}
+      <div className="mt-6 border-t border-gray-600 pt-4">
+        <h3 className="font-semibold text-lg mb-2">Límites de preguntas por tipo</h3>
+        <p className="text-sm text-gray-400 mb-4">
+          Definí cuántas preguntas de cada tipo le aparecerán al alumno de forma aleatoria.
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <label className="flex flex-col text-sm">
+            <span>Preguntas abiertas</span>
+            <input
+              type="number"
+              min={0}
+              className="border rounded px-2 py-1 bg-surface text-white"
+              value={examCopy.questionLimit?.open ?? 0}
+              onChange={(e) =>
+                updateExamCopy({
+                  questionLimit: {
+                    ...examCopy.questionLimit,
+                    open: Number(e.target.value),
+                  },
+                })
+              }
+            />
+          </label>
+
+          <label className="flex flex-col text-sm">
+            <span>Multiple Choice</span>
+            <input
+              type="number"
+              min={0}
+              className="border rounded px-2 py-1 bg-surface text-white"
+              value={examCopy.questionLimit?.choice ?? 0}
+              onChange={(e) =>
+                updateExamCopy({
+                  questionLimit: {
+                    ...examCopy.questionLimit,
+                    choice: Number(e.target.value),
+                  },
+                })
+              }
+            />
+          </label>
+
+          <label className="flex flex-col text-sm">
+            <span>Verdadero/Falso</span>
+            <input
+              type="number"
+              min={0}
+              className="border rounded px-2 py-1 bg-surface text-white"
+              value={examCopy.questionLimit?.tof ?? 0}
+              onChange={(e) =>
+                updateExamCopy({
+                  questionLimit: {
+                    ...examCopy.questionLimit,
+                    tof: Number(e.target.value),
+                  },
+                })
+              }
+            />
+          </label>
+
+          <label className="flex flex-col text-sm">
+            <span>Ejercicios de código</span>
+            <input
+              type="number"
+              min={0}
+              className="border rounded px-2 py-1 bg-surface text-white"
+              value={examCopy.questionLimit?.code ?? 0}
+              onChange={(e) =>
+                updateExamCopy({
+                  questionLimit: {
+                    ...examCopy.questionLimit,
+                    code: Number(e.target.value),
+                  },
+                })
+              }
+            />
+          </label>
+        </div>
+      </div>
+
+
       {/* …resto igual al ejemplo anterior… */}
       <div className="flex gap-2">
         <Link
@@ -141,7 +225,7 @@ const validarGuardar = () => {
         </Link>
         <button
           className="btn-primary px-5 py-2"
-           onClick={handleSave}
+            onClick={handleSave}
         >
           Guardar
         </button>

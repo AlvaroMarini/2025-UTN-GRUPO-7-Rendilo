@@ -12,6 +12,7 @@ import { useExamSecurity } from "@/hook/useExamSecurity";
 import AutoSubmitFocusModal from "@/components/ui/AutoSubmitFocusModal";
 import ExitExamModal from "@/components/ui/ExitExamModal";
 import ModaInterrupcion from "@/components/ui/ModaInterrupcion";
+import type { Question, QuestionLimit } from "@/store/exams";
 
 export default function TakeExam() {
   const { id } = useParams<{ id: string }>();
@@ -61,7 +62,13 @@ export default function TakeExam() {
     setSubmitted(true);
     setActivo(false);
     const orderedAnswers = questionOrder.map((i) => answers[i]);
-    submitAttempt(exam.id, studentId || "alumno", orderedAnswers);
+    console.log(" Enviando intento:", {
+    examId: exam.id,
+    studentId,
+    orderedAnswers,
+    questionOrder,
+    });
+    submitAttempt(exam.id, studentId || "alumno", orderedAnswers, questionOrder);
     router.push("/alumnos");
     setMinutos(0);
   };
@@ -74,17 +81,31 @@ export default function TakeExam() {
   });
 
 
-  const mezclarPreguntas = () => {
-    const order = exam.questions.map((_, i) => i);
-    for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j], order[i]];
-    }
-    setQuestionOrder(order);
-  };
+  function mezclarPreguntas(examQuestions: Question[], limits?: QuestionLimit): number[] {
+    const grouped = {
+      open: examQuestions.filter((q) => q.type === "open"),
+      choice: examQuestions.filter((q) => q.type === "choice"),
+      tof: examQuestions.filter((q) => q.type === "tof"),
+      code: examQuestions.filter((q) => q.type === "code"),
+    };
+
+    const pickRandom = <T,>(arr: T[], n: number): T[] =>
+      [...arr].sort(() => 0.5 - Math.random()).slice(0, n);
+
+    const selected: Question[] = [
+      ...pickRandom(grouped.open, limits?.open ?? grouped.open.length),
+      ...pickRandom(grouped.choice, limits?.choice ?? grouped.choice.length),
+      ...pickRandom(grouped.tof, limits?.tof ?? grouped.tof.length),
+      ...pickRandom(grouped.code, limits?.code ?? grouped.code.length),
+    ];
+
+    const finalList = selected.length > 0 ? selected : examQuestions;
+    return finalList.map((q) => examQuestions.indexOf(q));
+  }
+
 
   const siguientePregunta = () => {
-    if (currentIndex + 1 < exam.questions.length) {
+    if (currentIndex + 1 < questionOrder.length) {
       setCurrentIndex(currentIndex + 1);
     } else {
       finishAndSubmit();
@@ -97,6 +118,7 @@ export default function TakeExam() {
     }
   };
 
+
   const start = async () => {
     const init = (exam?.questions || []).map((q: any) => {
       if (q.type === "choice") return [];
@@ -105,7 +127,7 @@ export default function TakeExam() {
     });
     setAnswers(init);
     setMinutos(Math.max(0, (exam?.duration ?? 0) * 60));
-    mezclarPreguntas();
+    setQuestionOrder(mezclarPreguntas(exam.questions, exam.questionLimit));
     setInicio(false);
     if (exam.withCamera) setShowCamNotice(true);
     setActivo(true);
@@ -299,7 +321,7 @@ export default function TakeExam() {
               {q && (
                 <div key={q.id} className="border p-3 sm:p-4 rounded shadow-sm">
                   <p className="font-semibold mb-2 text-sm sm:text-base">
-                    Pregunta {currentIndex + 1} de {exam.questions.length}: {q.examInstructions}
+                    Pregunta {currentIndex + 1} de {questionOrder.length}: {q.examInstructions}
                   </p>
 
                   {q.type === "choice" &&
