@@ -52,6 +52,15 @@ const validarGuardar = () => {
     }
   }
 
+  const handleAddQuestion = () => { 
+    const updatedExam = {
+        ...examCopy,
+        withCamera: examCopy.withCamera ?? false,
+      };
+    updateExam(exam.id, updatedExam);
+    router.push(`/examen/${exam.id}/editar/agregarPregunta`);
+   } 
+
   const handleBack = () => {
     // Discard changes and go back
     router.push(`/profesores`);
@@ -217,12 +226,12 @@ const validarGuardar = () => {
 
       {/* …resto igual al ejemplo anterior… */}
       <div className="flex gap-2">
-        <Link
-          href={`/examen/${exam.id}/editar/agregarPregunta`}
+        <button
           className="btn-primary px-5 py-2"
+          onClick={handleAddQuestion}
         >
           + Pregunta
-        </Link>
+        </button>
         <button
           className="btn-primary px-5 py-2"
             onClick={handleSave}
